@@ -22,6 +22,7 @@ git clone https://github.com/DenAV/ansible-zabbix-docker.git
 
 cd ansible-zabbix-docker
 ansible-playbook playbooks/pl_zbx_docker_setup_local.yml -bK
+<sudo password>:
 
 or 
 
