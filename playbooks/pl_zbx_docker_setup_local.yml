@@ -1,0 +1,41 @@
+## Ansible infrastructure
+# ansible-playbook playbooks/pl_zbx_docker_setup_local.yml -bK
+---
+- name: Playbook initial_setting
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: true
+
+  vars:
+    # what should be installed
+    # Zabbix server + agent
+    must_zbx_server_agent_installed: true
+    # Zabbix proxy + agent
+    must_zbx_proxy_agent_installed: false
+    # Zabbix proxy
+    must_zbx_proxy_installed: false
+    # Zabbix agent
+    must_zbx_agent_installed: false
+
+    # for .env_agent
+    zbx_agent_server_host: 'zabbix-server'
+
+    # for .env_prx
+    # zbx_proxy_server_host: 'zabbix-server'
+
+  tasks:
+    - name: Role install docker
+      include_role:
+        name: install_docker
+      vars:
+        docker_users:         # admin user
+          - administrator
+      when: ansible_os_family != 'Windows'
+
+    - name: Role install_zabbix_docker
+      include_role: 
+        name: install_zabbix_docker
+      vars:
+        zbx_container_state: 'present' # 'absent'
+      when: ansible_os_family != 'Windows'

@@ -1,0 +1,47 @@
+---
+- name: AutoPSK | Set default path variables for Linux
+  set_fact:
+    zbx_pskfile_path: "{{ zbx_volumes_local_path }}/var/enc/secret.psk"
+
+### TLS PSKFile
+- name: AutoPSK | Check for existing TLS PSK file
+  stat:
+    path: "{{ zbx_pskfile_path }}"
+  register: zbx_pskfile_check
+
+- name: AutoPSK | read existing TLS PSK file
+  slurp:
+    src: "{{ zbx_pskfile_path }}"
+  register: zbx_pskfile_base64
+  when: zbx_pskfile_check.stat.exists
+
+- name: AutoPSK | Save existing TLS PSK secret
+  set_fact:
+    zbx_pskfile_read: "{{ zbx_pskfile_base64['content'] | b64decode | trim }}"
+  when: zbx_pskfile_check.stat.exists
+
+- name: AutoPSK | Use existing TLS PSK secret
+  set_fact:
+    zbx_pskfile_secret: "{{ zbx_pskfile_read }}"
+  when: zbx_pskfile_check.stat.exists and zbx_pskfile_read|length >= 32
+
+- name: AutoPSK | Generate new TLS PSK secret
+  set_fact:
+    zbx_pskfile_secret: "{{ lookup('password', '/dev/null chars=hexdigits length=64') }}"
+  register: generated_new_secret
+  when: not zbx_pskfile_check.stat.exists or zbx_pskfile_read|length <= 32
+
+- name: AutoPSK | TLS PSK secret copy to file
+  copy:
+    dest: "{{ zbx_pskfile_path }}"
+    content: "{{ zbx_pskfile_secret }}"
+  become: true
+  when: zbx_pskfile_check.stat.exists == False or generated_new_secret.changed == True
+
+- name: AutoPSK | The permissions the secret.psk
+  file:
+    path: "{{ zbx_pskfile_path }}"
+    mode: 0640
+    group: 1995
+    owner: 1997
+  become: true

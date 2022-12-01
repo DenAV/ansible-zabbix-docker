@@ -1,0 +1,37 @@
+---
+# tasks file for install_zabbix_docker
+
+
+# sudo openssl rand -hex 32 > secret.psk
+# var/lib/zabbix/enc/secret.psk
+# chown -R 1997:1995 /var/lib/zabbix/
+
+- name: Create project path and subfolder for container
+  file:
+    path: "{{ item }}"
+    mode: 0755
+    group: 1995
+    owner: 1997
+    recurse: true
+    state: directory
+  with_items: "{{ zbx_container_directory_local }}"
+  register: result_create_path
+
+- name: Check path for TLSPSK
+  stat:
+    path: "{{ zbx_volumes_local_path }}/var/enc"
+  register: check_path_tlspsk
+
+- name: Generate or check TLSPSK
+  include_tasks: autopsk_setup.yml
+  when: check_path_tlspsk.stat.exists
+
+- name: preparation docker-compose file
+  include_tasks: docker_prepare.yml
+  when: check_path_tlspsk.stat.exists
+
+- name: Container Zabbix deploy
+  community.docker.docker_compose:
+    project_src: "{{ zbx_project_path }}"
+    state: "{{ zbx_container_state }}"
+  when: check_path_docker_compose_file.stat.exists

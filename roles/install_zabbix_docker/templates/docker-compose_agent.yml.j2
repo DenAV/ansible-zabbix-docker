@@ -1,0 +1,48 @@
+version: '3.5'
+services:
+# zabbix-agent 
+ zabbix-agent:
+{% if (zabbix_agent_image is defined) and (zabbix_releases_image is defined)%}
+  image: zabbix/{{ zabbix_agent_image }}:{{ zabbix_releases_image }}
+{% else %}
+  image: zabbix/zabbix-agent2:alpine-6.2-latest
+{% endif %}
+  ports:
+   - "10050:10050"
+  hostname: zabbix-agent
+  container_name: zabbix-agent
+  volumes:
+   - /etc/localtime:/etc/localtime:ro
+   - /etc/timezone:/etc/timezone:ro
+   - /etc/zabbix/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro
+   - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
+   - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
+   - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
+   - /proc:/proc
+   - /sys:/sys
+   - /dev:/dev
+   - /var/run/docker.sock:/var/run/docker.sock:rw
+  restart: always
+  env_file:
+   - "{{ zbx_variables_local_path }}/.env_agent"
+  privileged: true
+  pid: "host"
+  networks:
+   zbx_net_frontend:
+  stop_grace_period: 5s
+  labels:
+   com.zabbix.description: "Zabbix agent"
+   com.zabbix.company: "Zabbix LLC"
+   com.zabbix.component: "zabbix-agentd"
+   com.zabbix.os: "alpine"
+
+# zabbix-network
+networks:
+  zbx_net_frontend:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.238.0/24

@@ -1,0 +1,11 @@
+---
+# vars file for install_zabbix_docker
+zbx_project_path: '/zabbix'
+zbx_volumes_local_path: "{{ zbx_project_path }}/zbx_env"
+zbx_variables_local_path: "{{ zbx_project_path }}/env_vars"
+
+zbx_container_directory_local:
+  - "{{ zbx_volumes_local_path }}"
+  - "{{ zbx_variables_local_path }}"
+  - "{{ zbx_volumes_local_path }}/var/enc"
+  - "{{ zbx_volumes_local_path }}/var/ssh_keys"

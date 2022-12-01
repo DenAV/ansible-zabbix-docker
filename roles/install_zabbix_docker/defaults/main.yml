@@ -1,0 +1,42 @@
+---
+# defaults file for install_zabbix_docker
+
+zbx_releases_image: 'alpine-6.2-latest'
+
+zbx_server_image: 'zabbix-server-mysql'
+zbx_proxy_image: 'zabbix-proxy-sqlite3'
+zbx_web_server_image: 'zabbix-web-nginx-mysql'
+zbx_web_service_image: 'zabbix-web-service'
+zbx_agent_image: 'zabbix-agent2'
+mysql_server_image: 'mysql:8.0-oracle'
+
+# what should be installed
+# Zabbix server + agent
+must_zbx_server_agent_installed: false
+
+# Zabbix proxy + agent
+must_zbx_proxy_agent_installed: false
+
+# Zabbix proxy
+must_zbx_proxy_installed: false
+
+# Zabbix agent
+must_zbx_agent_installed: false
+
+zbx_container_state: 'present'
+
+# for .env_
+zbx_pskfile_secret: ''
+
+# for .env_agent
+zbx_agent_server_host: 'zabbix-server'
+zbx_agent_hostname: "{{ ansible_hostname }}"
+zbx_agent_psk_identity: "{{ zbx_agent_hostname }}-identity"
+
+# for .env_prx
+zbx_proxy_server_host: 'zabbix-server'
+zbx_proxy_hostname: 'zabbix-proxy'
+zbx_proxy_psk_identity: "{{ zbx_proxy_hostname }}-identity"
+
+# for docker-compose
+zbx_docker_compose_file: "docker-compose.yml"
