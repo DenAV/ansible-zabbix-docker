@@ -1,6 +1,8 @@
-## Zabbix Installation from containers with Ansible
+Zabbix Installation from containers with Ansible
+================================================
 
-## Pre-requisites
+Pre-requisites
+--------------
 
 * You must have [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) installed on your computer.
 
@@ -11,6 +13,23 @@ sudo apt update
 sudo apt install ansible -y
 
 ```
+
+Role Variables
+--------------
+For role Install Docker
+- `docker_users: [ubuntu]` - A list of users who will be added to the docker group.
+
+See the [`defaults/main.yml`](https://github.com/DenAV/ansible-zabbix-docker/blob/main/roles/install_docker/defaults/main.yml) file listing 
+all possible options which you can be passed to a runner registration command.
+
+For role Install Zabbix Docker
+- `must_zbx_server_agent_installed: false` - what should be installed? Zabbix server + agent
+- `must_zbx_proxy_agent_installed: false` - what should be installed? Zabbix proxy + agent
+- `must_zbx_proxy_installed: false` - what should be installed? Zabbix proxy
+- `must_zbx_agent_installed: false` - what should be installed? Zabbix agent
+
+See the [`defaults/main.yml`](https://github.com/DenAV/ansible-zabbix-docker/blob/main/roles/install_zabbix_docker/defaults/main.yml) file listing 
+all possible options which you can be passed to a runner registration command.
 
 ## Quick start
 
