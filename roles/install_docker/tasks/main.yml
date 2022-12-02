@@ -5,7 +5,7 @@
   include_vars:
     dir: vars
 
-- include_tasks: install-Docker.yml
+- include_tasks: install_docker.yml
   when: ansible_os_family == 'Debian'
 
 - name: Ensure /etc/docker/ directory exists.
@@ -49,5 +49,5 @@
     - item not in ansible_facts.getent_group["docker"][2]
   with_items: "{{ docker_users }}"
 
-- include_tasks: docker_users.yml
+- include_tasks: setup_docker_users.yml
   when: at_least_one_user_to_modify is defined

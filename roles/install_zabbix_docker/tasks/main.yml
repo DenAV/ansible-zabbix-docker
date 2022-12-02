@@ -6,10 +6,19 @@
 # var/lib/zabbix/enc/secret.psk
 # chown -R 1997:1995 /var/lib/zabbix/
 
-- name: Create project path and subfolder for container
+
+- name: Create project path container
+  file:
+    path: "{{ zbx_project_path }}"
+    mode: 0755
+    group: 1995
+    owner: 1997
+    state: directory
+
+- name: Create subfolder for container
   file:
     path: "{{ item }}"
-    mode: 0755
+    mode: 0750
     group: 1995
     owner: 1997
     recurse: true
@@ -35,3 +44,14 @@
     project_src: "{{ zbx_project_path }}"
     state: "{{ zbx_container_state }}"
   when: check_path_docker_compose_file.stat.exists
+
+- name: update permissions the subfolder for container
+  file:
+    path: "{{ item }}"
+    mode: 0750
+    group: 1995
+    owner: 1997
+    recurse: true
+    state: directory
+  with_items: "{{ zbx_container_directory_local }}"
+  when: created_dockercompose_file.changed | bool

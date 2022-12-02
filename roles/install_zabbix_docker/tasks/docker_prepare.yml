@@ -79,6 +79,7 @@
     src: "{{ zbx_docker_compose_tmp }}"
     dest: "{{ zbx_project_path }}/{{ zbx_docker_compose_file }}"
     force: true
+  register: created_dockercompose_file
   when: 
     - zbx_docker_compose_tmp is defined
     - zbx_docker_compose_tmp|length > 0
