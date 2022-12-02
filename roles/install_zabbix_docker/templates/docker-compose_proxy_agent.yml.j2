@@ -5,7 +5,7 @@ services:
 {% if (zabbix_proxy_image is defined) and (zabbix_releases_image is defined)%}
   image: zabbix/{{ zabbix_proxy_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-proxy-sqlite3:alpine-6.2-latest
+  image: zabbix/zabbix-proxy-sqlite3:alpine-6.0-latest
 {% endif %}
   ports:
    - "10051:10051"
@@ -49,16 +49,17 @@ services:
 {% if (zabbix_agent_image is defined) and (zabbix_releases_image is defined)%}
   image: zabbix/{{ zabbix_agent_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-agent2:alpine-6.2-latest
+  image: zabbix/zabbix-agent2:alpine-6.0-latest
 {% endif %}
   ports:
    - "10050:10050"
+  user: 0:0
   hostname: zabbix-agent
   container_name: zabbix-agent
   volumes:
    - /etc/localtime:/etc/localtime:ro
    - /etc/timezone:/etc/timezone:ro
-   - /etc/zabbix/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro
+   - "{{ zbx_volumes_local_path }}/etc/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro"
    - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
    - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
    - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"

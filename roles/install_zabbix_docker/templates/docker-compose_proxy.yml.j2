@@ -4,7 +4,7 @@ services:
 {% if (zabbix_proxy_image is defined) and (zabbix_releases_image is defined)%}
   image: zabbix/{{ zabbix_proxy_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-proxy-sqlite3:alpine-6.2-latest
+  image: zabbix/zabbix-proxy-sqlite3:alpine-6.0-latest
 {% endif %}
   ports:
    - "10051:10051"

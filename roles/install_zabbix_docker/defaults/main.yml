@@ -1,6 +1,8 @@
 ---
 # defaults file for install_zabbix_docker
-
+# Images
+# 'alpine-6.2-latest'
+# 'alpine-6.0-latest'
 zbx_releases_image: 'alpine-6.2-latest'
 
 zbx_server_image: 'zabbix-server-mysql'

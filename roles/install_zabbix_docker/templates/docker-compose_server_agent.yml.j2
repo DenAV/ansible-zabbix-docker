@@ -5,7 +5,7 @@ services:
 {% if (zabbix_server_image is defined) and (zabbix_releases_image is defined)%}
   image: zabbix/{{ zabbix_server_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-server-mysql:alpine-6.2-latest
+  image: zabbix/zabbix-server-mysql:alpine-6.0-latest
 {% endif %}
   hostname: zabbix-server
   container_name: zabbix-server
@@ -62,7 +62,7 @@ services:
 {% if (zabbix_web_server_image is defined) and (zabbix_releases_image is defined)%}
   image: zabbix/{{ zabbix_web_server_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-web-nginx-mysql:alpine-6.2-latest
+  image: zabbix/zabbix-web-nginx-mysql:alpine-6.0-latest
 {% endif %}
   hostname: zabbix-web-nginx
   container_name: zabbix-web-nginx
@@ -117,16 +117,17 @@ services:
 {% if (zabbix_agent_image is defined) and (zabbix_releases_image is defined)%}
   image: zabbix/{{ zabbix_agent_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-agent2:alpine-6.2-latest
+  image: zabbix/zabbix-agent2:alpine-6.0-latest
 {% endif %}
   ports:
    - "10050:10050"
+  user: 0:0
   hostname: zabbix-agent
   container_name: zabbix-agent
   volumes:
    - /etc/localtime:/etc/localtime:ro
    - /etc/timezone:/etc/timezone:ro
-   - /etc/zabbix/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro
+   - "{{ zbx_volumes_local_path }}/etc/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro"
    - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
    - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
    - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
@@ -153,7 +154,7 @@ services:
 {% if (zabbix_web_service_image is defined) and (zabbix_releases_image is defined)%}
   image: zabbix/{{ zabbix_web_service_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-web-service:alpine-6.2-latest
+  image: zabbix/zabbix-web-service:alpine-6.0-latest
 {% endif %}
   hostname: zabbix-web-service
   container_name: zabbix-web-service
