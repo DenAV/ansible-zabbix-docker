@@ -183,7 +183,7 @@ services:
    com.zabbix.os: "alpine"
 
  mysql-server:
-{% if mysql_server_image is defined%}
+{% if mysql_server_image is defined %}
   image: {{ mysql_server_image }}
 {% else %}
   image: mysql:8.0-oracle
@@ -216,8 +216,6 @@ services:
    zbx_net_backend:
     aliases:
      - mysql-server
-     - zabbix-database
-     - mysql-database
 
  db_data_mysql:
   image: busybox

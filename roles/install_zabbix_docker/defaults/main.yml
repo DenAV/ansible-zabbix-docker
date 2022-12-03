@@ -3,13 +3,13 @@
 # Images
 # 'alpine-6.2-latest'
 # 'alpine-6.0-latest'
-zbx_releases_image: 'alpine-6.2-latest'
+zabbix_releases_image: 'alpine-6.2-latest'
 
-zbx_server_image: 'zabbix-server-mysql'
-zbx_proxy_image: 'zabbix-proxy-sqlite3'
-zbx_web_server_image: 'zabbix-web-nginx-mysql'
-zbx_web_service_image: 'zabbix-web-service'
-zbx_agent_image: 'zabbix-agent2'
+zabbix_server_image: 'zabbix-server-mysql'
+zabbix_proxy_image: 'zabbix-proxy-sqlite3'
+zabbix_web_server_image: 'zabbix-web-nginx-mysql'
+zabbix_web_service_image: 'zabbix-web-service'
+zabbix_agent_image: 'zabbix-agent2'
 mysql_server_image: 'mysql:8.0-oracle'
 
 # what should be installed
