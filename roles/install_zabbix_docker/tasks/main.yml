@@ -1,11 +1,6 @@
 ---
 # tasks file for install_zabbix_docker
-
-
-# sudo openssl rand -hex 32 > secret.psk
-# var/lib/zabbix/enc/secret.psk
 # chown -R 1997:1995 /var/lib/zabbix/
-
 
 - name: Create subfolder for container
   file:

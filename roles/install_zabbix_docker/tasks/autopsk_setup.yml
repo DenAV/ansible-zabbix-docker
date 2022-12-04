@@ -42,6 +42,4 @@
   file:
     path: "{{ zbx_pskfile_path }}"
     mode: 0640
-    group: 1995
-    owner: 1997
   become: true
