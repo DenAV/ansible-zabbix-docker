@@ -20,16 +20,14 @@
 
     # for .env_agent
     zbx_agent_server_host: 'zabbix-server'
-
-    # for .env_prx
-    # zbx_proxy_server_host: 'zabbix-server'
+    zbx_agent_hostname: 'zabbix-agent'
 
   tasks:
     - name: Role install docker
       include_role:
         name: install_docker
       vars:
-        docker_users:         # admin user
+        docker_users:
           - administrator
           - zabbix
       when: ansible_os_family != 'Windows'
