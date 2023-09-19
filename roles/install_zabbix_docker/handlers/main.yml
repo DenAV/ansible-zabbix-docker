@@ -1,2 +1,6 @@
 ---
 # handlers file for install_zabbix_docker
+- name: restart docker zabbix agent
+  community.docker.docker_container:
+    name: zabbix-agent
+    restart: true

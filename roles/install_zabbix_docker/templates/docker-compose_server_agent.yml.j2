@@ -119,8 +119,6 @@ services:
 {% else %}
   image: zabbix/zabbix-agent2:alpine-6.0-latest
 {% endif %}
-  ports:
-   - "10050:10050"
   user: 0:0
   hostname: zabbix-agent
   container_name: zabbix-agent
@@ -133,16 +131,16 @@ services:
    - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
    - /proc:/proc
    - /sys:/sys
-   - /dev:/dev
-   - /var/run/docker.sock:/var/run/docker.sock:rw
+   - /dev:/dev:ro
+   - /sys/fs/cgroup:/sys/fs/cgroup:ro
+   - /:/rootfs:ro
+   - /var/run/docker.sock:/var/run/docker.sock:ro
+  restart: always
   env_file:
    - "{{ zbx_variables_local_path }}/.env_agent"
   privileged: true
-  pid: "host"
-  networks:
-   zbx_net_backend:
-    aliases:
-     - zabbix-agent
+  pid: host
+  network_mode: host
   stop_grace_period: 5s
   labels:
    com.zabbix.description: "Zabbix agent"

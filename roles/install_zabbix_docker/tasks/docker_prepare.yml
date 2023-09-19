@@ -1,26 +1,31 @@
 ---
+- name: Load platform-specific variables
+  include_vars:
+    dir: vars
+  no_log: True
+  
 # Zabbix server + agent
 - name: Zabbix server + agent
   block:
     - name: Set default template for docker-compose
       set_fact:
         zbx_docker_compose_tmp: 'docker-compose_server_agent.yml.j2'
-    
+
     - name: Create variables file for Zabbix server + agent
       template:
         src: "env_vars/{{ item.src }}"
         dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
       loop:
-        - { src: '.env_srv.yml.j2', dest: '.env_srv' }
-        - { src: '.env_db_mysql.yml.j2', dest: '.env_db_mysql' }
-        - { src: '.env_web.yml.j2', dest: '.env_web' }
-        - { src: '.env_agent.yml.j2', dest: '.env_agent' }
-        - { src: '.env_web_service.yml.j2', dest: '.env_web_service' }
+        - {src: '.env_srv.yml.j2', dest: '.env_srv'}
+        - {src: '.env_db_mysql.yml.j2', dest: '.env_db_mysql'}
+        - {src: '.env_web.yml.j2', dest: '.env_web'}
+        - {src: '.env_agent.yml.j2', dest: '.env_agent'}
+        - {src: '.env_web_service.yml.j2', dest: '.env_web_service'}
 
-        - { src: '.MYSQL_USER.yml.j2', dest: '.MYSQL_USER' }
-        - { src: '.MYSQL_PASSWORD.yml.j2', dest: '.MYSQL_PASSWORD' }
-        - { src: '.MYSQL_ROOT_USER.yml.j2', dest: '.MYSQL_ROOT_USER' }
-        - { src: '.MYSQL_ROOT_PASSWORD.yml.j2', dest: '.MYSQL_ROOT_PASSWORD' }
+        - {src: '.MYSQL_USER.yml.j2', dest: '.MYSQL_USER'}
+        - {src: '.MYSQL_PASSWORD.yml.j2', dest: '.MYSQL_PASSWORD'}
+        - {src: '.MYSQL_ROOT_USER.yml.j2', dest: '.MYSQL_ROOT_USER'}
+        - {src: '.MYSQL_ROOT_PASSWORD.yml.j2', dest: '.MYSQL_ROOT_PASSWORD'}
 
   when: must_zbx_server_agent_installed|bool == true
 
@@ -36,8 +41,8 @@
         src: "env_vars/{{ item.src }}"
         dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
       loop:
-        - { src: '.env_prx.yml.j2', dest: '.env_prx' }
-        - { src: '.env_agent.yml.j2', dest: '.env_agent' }
+        - {src: '.env_prx.yml.j2', dest: '.env_prx'}
+        - {src: '.env_agent.yml.j2', dest: '.env_agent'}
 
   when: must_zbx_proxy_agent_installed|bool == true
 
@@ -47,13 +52,13 @@
     - name: Set default template for docker-compose
       set_fact:
         zbx_docker_compose_tmp: 'docker-compose_proxy.yml.j2'
-    
+
     - name: Create variables file for Zabbix proxy
       template:
         src: "env_vars/{{ item.src }}"
         dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
       loop:
-        - { src: '.env_prx.yml.j2', dest: '.env_prx' }
+        - {src: '.env_prx.yml.j2', dest: '.env_prx'}
 
   when: must_zbx_proxy_installed|bool == true
 
@@ -63,13 +68,13 @@
     - name: Set default template for docker-compose
       set_fact:
         zbx_docker_compose_tmp: 'docker-compose_agent.yml.j2'
-    
+
     - name: Create variables file for Zabbix agent
       template:
         src: "env_vars/{{ item.src }}"
         dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
       loop:
-        - { src: '.env_agent.yml.j2', dest: '.env_agent' }
+        - {src: '.env_agent.yml.j2', dest: '.env_agent'}
 
   when: must_zbx_agent_installed|bool == true
 
@@ -80,7 +85,7 @@
     dest: "{{ zbx_project_path }}/{{ zbx_docker_compose_file }}"
     force: true
   register: created_dockercompose_file
-  when: 
+  when:
     - zbx_docker_compose_tmp is defined
     - zbx_docker_compose_tmp|length > 0
 

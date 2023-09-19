@@ -36,11 +36,11 @@
 
 - name: Install Docker and Docker-compose
   apt:
-    name: 
+    name:
       - docker-ce
       - docker-ce-cli
       - containerd.io
       - docker-compose
-    state: latest
+    state: present
     update_cache: true
   notify: restart docker

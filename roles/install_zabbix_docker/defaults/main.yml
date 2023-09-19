@@ -42,3 +42,48 @@ zbx_proxy_psk_identity: "{{ zbx_proxy_hostname }}-identity"
 
 # for docker-compose
 zbx_docker_compose_file: "docker-compose.yml"
+
+# Zabbix API stuff
+zabbix_vmname: "{{zbx_agent_hostname}}"
+
+zabbix_install_pip_packages: true
+
+zabbix_agent_tlspsk_secret: "{{ zbx_pskfile_secret }}"
+zabbix_agent_tlspskidentity: "{{ zbx_proxy_psk_identity }}"
+zabbix_api_create_hostgroup: true
+zabbix_api_create_hosts: true
+zabbix_api_update_psk: true
+
+zabbix_create_hostgroup: present  # or absent
+zabbix_create_host: present       # or absent
+zabbix_update_host: true
+zabbix_host_status: enabled       # or disabled
+
+zabbix_inventory_mode: disabled
+zabbix_useuip: 1
+
+zabbix_tls_accept: 2    # PSK
+zabbix_tls_connect: 2   # PSK
+
+# Soll für Server anpassen!
+# die Variablen bekommen aus ./pl_vars/role_zabbix-agent_install.yml
+zabbix_proxy: ""
+zabbix_host_groups: []
+#  - "Cloud-VMs"
+
+zabbix_link_templates: []
+#  - "Linux by Zabbix agent"
+
+zabbix_agent_ip: "{{ansible_ip_addresses | ansible.utils.ipv4 | join(',')}}"
+zabbix_agent_interfaces:
+  - type: 1
+    main: 1
+    useip: "{{ zabbix_useuip }}"
+    ip: "{{ zabbix_agent_ip }}"
+    dns: "{{ ansible_fqdn }}"
+    port: "{{ zabbix_agent_listenport }}"
+
+zabbix_agent_tls_config:
+  unencrypted: '1'
+  psk: '2'
+  cert: '4'

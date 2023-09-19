@@ -36,7 +36,7 @@
     dest: "{{ zbx_pskfile_path }}"
     content: "{{ zbx_pskfile_secret }}"
   become: true
-  when: zbx_pskfile_check.stat.exists == False or generated_new_secret.changed == True
+  when: zbx_pskfile_check.stat.exists or not generated_new_secret.failed
 
 - name: AutoPSK | The permissions the secret.psk
   file:

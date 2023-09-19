@@ -1,0 +1,33 @@
+# Vars für zabbix_agent.conf auf Windows OS
+#
+# Option: logfile
+zabbix_agent_logfilesize: 1
+
+# Option: EnableRemoteCommands
+zabbix_agent_enableremotecommands: 0
+# Option: Logremotecommands
+zabbix_agent_logremotecommands: 1
+# Option: Listenport
+zabbix_agent_listenport: 10050
+# Option: Hostname
+zabbix_agent_hostname: "{{ zabbix_vmname }}"
+# Option: Maxlinespersecond
+zabbix_agent_maxlinespersecond: 20
+
+############ advanced parameters #################
+# Option: Timeout
+zabbix_agent_timeout: 20
+# Userparams
+zabbix_agent_userparams: False
+####### user-defined monitored parameters #######
+#zabbix_agent_unsafeuserparameters: 1
+
+####### TLS-RELATED PARAMETERS #######
+# Option: TLSConnect
+zabbix_agent_tlsconnect: 'psk'
+# Option: TLSAccept
+zabbix_agent_tlsaccept: 'psk'
+
+# Option: TLSPSKFile
+#zabbix_agent_tlspskfile: 'c:\zabbix\conf\secret.psk'
+#zabbix_agent_tlspskidentity_file: 'c:\zabbix\conf\identity.psk'

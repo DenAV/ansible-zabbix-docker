@@ -9,6 +9,9 @@
 
   vars:
     # what should be installed
+    # Images
+    zabbix_releases_image: 'alpine-6.0-latest'
+
     # Zabbix server + agent
     must_zbx_server_agent_installed: false
     # Zabbix proxy + agent
@@ -21,6 +24,13 @@
     # for .env_agent
     zbx_agent_server_host: 'zabbix-proxy'
     zbx_agent_hostname: 'agent-hostname'
+
+    # for API
+    zabbix_proxy: "z-proxy-Test"
+    zabbix_host_groups:
+      - "Test-Cloud"
+    zabbix_link_templates:
+      - "Linux by Zabbix agent"
 
     # for .env_prx
     zbx_proxy_server_host: 'zabbix-server'
@@ -37,7 +47,7 @@
       when: ansible_os_family != 'Windows'
 
     - name: Role install_zabbix_docker
-      include_role: 
+      include_role:
         name: install_zabbix_docker
       vars:
         zbx_container_state: 'present' # 'absent'

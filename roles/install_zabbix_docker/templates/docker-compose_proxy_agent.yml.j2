@@ -29,9 +29,6 @@ services:
   env_file:
    - "{{ zbx_variables_local_path }}/.env_prx"
   networks:
-   zbx_net_backend:
-    aliases:
-     - zabbix-proxy
    zbx_net_frontend:
      ipv4_address: 172.16.238.2
      aliases:
@@ -51,8 +48,6 @@ services:
 {% else %}
   image: zabbix/zabbix-agent2:alpine-6.0-latest
 {% endif %}
-  ports:
-   - "10050:10050"
   user: 0:0
   hostname: zabbix-agent
   container_name: zabbix-agent
@@ -65,19 +60,16 @@ services:
    - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
    - /proc:/proc
    - /sys:/sys
-   - /dev:/dev
-   - /var/run/docker.sock:/var/run/docker.sock:rw
+   - /dev:/dev:ro
+   - /sys/fs/cgroup:/sys/fs/cgroup:ro
+   - /:/rootfs:ro
+   - /var/run/docker.sock:/var/run/docker.sock:ro
   restart: always
   env_file:
    - "{{ zbx_variables_local_path }}/.env_agent"
   privileged: true
-  pid: "host"
-  depends_on:
-     - zabbix-proxy
-  networks:
-   zbx_net_backend:
-    aliases:
-     - zabbix-agent
+  pid: host
+  network_mode: host
   stop_grace_period: 5s
   labels:
    com.zabbix.description: "Zabbix agent"
@@ -95,13 +87,3 @@ networks:
       driver: default
       config:
       - subnet: 172.16.238.0/24
-
-  zbx_net_backend:
-    driver: bridge
-    driver_opts:
-      com.docker.network.enable_ipv6: "false"
-    internal: true
-    ipam:
-      driver: default
-      config:
-      - subnet: 172.16.239.0/24

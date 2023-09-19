@@ -7,6 +7,8 @@
     path: "{{ item }}"
     recurse: true
     state: directory
+    group: zabbix
+    owner: zabbix
   with_items: "{{ zbx_container_directory_local }}"
   register: result_create_path
 
@@ -27,4 +29,11 @@
   community.docker.docker_compose:
     project_src: "{{ zbx_project_path }}"
     state: "{{ zbx_container_state }}"
+  register: check_container
   when: check_path_docker_compose_file.stat.exists
+
+- name: preparation docker-compose file
+  include_tasks: api.yml
+  when: 
+    - check_container is defined and check_container['services']['zabbix-agent']['zabbix-agent'].state.running | bool
+    - zabbix_api_create_hosts | bool

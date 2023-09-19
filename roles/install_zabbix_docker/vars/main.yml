@@ -9,3 +9,4 @@ zbx_container_directory_local:
   - "{{ zbx_variables_local_path }}"
   - "{{ zbx_volumes_local_path }}/var/enc"
   - "{{ zbx_volumes_local_path }}/var/ssh_keys"
+  - "{{ zbx_volumes_local_path }}/var/db_data"

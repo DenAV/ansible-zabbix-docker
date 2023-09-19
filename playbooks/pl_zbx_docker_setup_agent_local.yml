@@ -11,19 +11,19 @@
     # what should be installed
     # Images
     zabbix_releases_image: 'alpine-6.0-latest'
-
+    
     # Zabbix server + agent
-    must_zbx_server_agent_installed: true
+    must_zbx_server_agent_installed: false
     # Zabbix proxy + agent
     must_zbx_proxy_agent_installed: false
     # Zabbix proxy
     must_zbx_proxy_installed: false
     # Zabbix agent
-    must_zbx_agent_installed: false
+    must_zbx_agent_installed: true
 
     # for .env_agent
     zbx_agent_server_host: 'zabbix-server'
-    zbx_agent_hostname: 'zabbix-agent'
+    zbx_agent_hostname: 'agent-hostname'
 
     # for API
     zabbix_proxy: "z-proxy-Test"
