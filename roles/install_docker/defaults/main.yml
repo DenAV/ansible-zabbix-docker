@@ -7,8 +7,15 @@ docker_service_state: started
 docker_service_enabled: true
 docker_restart_handler_state: restarted
 
+# Package install behavior
+docker_package_state: present
+docker_compose_plugin_install: true
+
 # Docker repo URL.
 docker_repo_url: https://download.docker.com/linux
+
+# APT keyring path for signed-by
+docker_keyring_path: /etc/apt/keyrings/docker.gpg
 
 # Used only for Debian/Ubuntu. Switch 'stable' to 'nightly' if needed.
 docker_apt_release_channel: stable
@@ -21,3 +28,7 @@ docker_users: [ubuntu]
 
 # Docker daemon options as a dict
 docker_daemon_options: {}
+
+# Zabbix system user/group IDs (project-specific defaults)
+zabbix_gid: 1995
+zabbix_uid: 1997

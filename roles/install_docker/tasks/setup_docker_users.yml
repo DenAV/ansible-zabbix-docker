@@ -3,7 +3,7 @@
   ansible.builtin.group:
     name: zabbix
     state: present
-    gid: 1995
+    gid: "{{ zabbix_gid }}"
 
 - name: Add the user 'zabbix' with a specific uid and a primary group of 'zabbix'
   ansible.builtin.user:
@@ -11,7 +11,7 @@
     group: zabbix
     shell: /sbin/nologin
     comment: Zabbix monitoring system
-    uid: 1997
+    uid: "{{ zabbix_uid }}"
     state: present
 
 - name: Ensure docker users are added to the docker group.

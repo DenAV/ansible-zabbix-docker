@@ -20,27 +20,47 @@
     state: present
     update_cache: true
 
-- name: Add Docker apt key.
-  ansible.builtin.apt_key:
+- name: Ensure APT keyring directory exists
+  file:
+    path: "/etc/apt/keyrings"
+    state: directory
+    mode: "0755"
+
+- name: Download Docker GPG key (ASCII armor)
+  get_url:
     url: "{{ docker_apt_gpg_key }}"
-    state: present
-  register: add_repository_key
-  ignore_errors: "{{ docker_apt_ignore_key_error }}"
+    dest: "{{ docker_keyring_path }}.asc"
+    mode: "0644"
+  register: docker_key_download
+
+- name: Convert Docker GPG key to keyring
+  command: "gpg --dearmor -o {{ docker_keyring_path }} {{ docker_keyring_path }}.asc"
+  args:
+    creates: "{{ docker_keyring_path }}"
+  when: docker_key_download is succeeded
 
 - name: Add Docker repository.
   apt_repository:
-    repo: "{{ docker_apt_repository }}"
+    repo: "deb [arch=amd64 signed-by={{ docker_keyring_path }}] {{ docker_repo_url }}/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_apt_release_channel }}"
     state: present
     filename: docker
     update_cache: true
 
-- name: Install Docker and Docker-compose
+  
+- name: Install Docker Engine and containerd
   apt:
     name:
       - docker-ce
       - docker-ce-cli
       - containerd.io
-      - docker-compose
-    state: present
+    state: "{{ docker_package_state }}"
     update_cache: true
+  notify: restart docker
+
+- name: Install Docker Compose plugin (v2)
+  apt:
+    name: docker-compose-plugin
+    state: "{{ docker_package_state }}"
+    update_cache: true
+  when: docker_compose_plugin_install | bool
   notify: restart docker
