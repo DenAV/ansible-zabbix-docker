@@ -1,9 +1,14 @@
 ---
 # defaults file for install_zabbix_docker
 # Images
-# 'alpine-6.2-latest'
-# 'alpine-6.0-latest'
-zabbix_releases_image: 'alpine-6.2-latest'
+# Zabbix versioning
+zabbix_version: '7.4.5'
+# image flavor: 'alpine' or 'ubuntu'
+zabbix_image_flavor: 'alpine'
+zabbix_image_tag: "{{ zabbix_image_flavor }}-{{ zabbix_version }}"
+
+# Backward-compat variable (used by templates); prefer zabbix_image_tag
+zabbix_releases_image: "{{ zabbix_image_tag }}"
 
 zabbix_server_image: 'zabbix-server-mysql'
 zabbix_proxy_image: 'zabbix-proxy-sqlite3'
@@ -12,18 +17,8 @@ zabbix_web_service_image: 'zabbix-web-service'
 zabbix_agent_image: 'zabbix-agent2'
 mysql_server_image: 'mysql:8.0-oracle'
 
-# what should be installed
-# Zabbix server + agent
-must_zbx_server_agent_installed: false
-
-# Zabbix proxy + agent
-must_zbx_proxy_agent_installed: false
-
-# Zabbix proxy
-must_zbx_proxy_installed: false
-
-# Zabbix agent
-must_zbx_agent_installed: false
+# Deployment mode: one of 'server_agent', 'proxy_agent', 'proxy', 'agent'
+zabbix_deployment_mode: 'server_agent'
 
 zbx_container_state: 'present'
 
@@ -87,3 +82,16 @@ zabbix_agent_tls_config:
   unencrypted: '1'
   psk: '2'
   cert: '4'
+
+# Security & networking
+zabbix_agent_privileged: false
+zabbix_agent_pid_host: false
+zabbix_agent_network_mode_host: false
+zabbix_agent_cap_add: [] # List of additional capabilities to add to the agent container
+
+# Compose networks (configurable to avoid collisions)
+zbx_net_frontend_subnet: '172.30.238.0/24'
+zbx_net_backend_subnet: '172.30.239.0/24'
+
+# Healthchecks toggle
+zabbix_enable_healthchecks: true

@@ -1,11 +1,11 @@
-version: '3.5'
+version: '3.9'
 services:
 # zabbix-agent 
  zabbix-agent:
 {% if (zabbix_agent_image is defined) and (zabbix_releases_image is defined)%}
   image: zabbix/{{ zabbix_agent_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-agent2:alpine-6.0-latest
+  image: zabbix/zabbix-agent2:{{ zabbix_image_tag }}
 {% endif %}
   user: 0:0
   hostname: zabbix-agent
@@ -23,13 +23,27 @@ services:
    - /sys/fs/cgroup:/sys/fs/cgroup:ro
    - /:/rootfs:ro
    - /var/run/docker.sock:/var/run/docker.sock:ro
-  restart: always
+  restart: unless-stopped
   env_file:
    - "{{ zbx_variables_local_path }}/.env_agent"
-  privileged: true
-  pid: host
-  network_mode: host
+  privileged: {{ 'true' if zabbix_agent_privileged | bool else 'false' }}
+  pid: {{ 'host' if zabbix_agent_pid_host | bool else '' }}
+  network_mode: {{ 'host' if zabbix_agent_network_mode_host | bool else '' }}
+  {% if zabbix_agent_cap_add | length > 0 %}
+  cap_add:
+  {% for cap in zabbix_agent_cap_add %}
+    - {{ cap }}
+  {% endfor %}
+  {% endif %}
   stop_grace_period: 5s
+  {% if zabbix_enable_healthchecks %}
+  healthcheck:
+    test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10050' || exit 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 30s
+  {% endif %}
   labels:
    com.zabbix.description: "Zabbix agent"
    com.zabbix.company: "Zabbix LLC"

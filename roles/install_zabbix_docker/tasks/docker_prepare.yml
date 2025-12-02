@@ -4,79 +4,44 @@
     dir: vars
   no_log: True
   
-# Zabbix server + agent
-- name: Zabbix server + agent
-  block:
-    - name: Set default template for docker-compose
-      set_fact:
-        zbx_docker_compose_tmp: 'docker-compose_server_agent.yml.j2'
+# Select deployment mode and render variables
+- name: Select docker-compose template based on deployment mode
+  set_fact:
+    zbx_docker_compose_tmp: >-
+      {{ 'docker-compose_server_agent.yml.j2' if zabbix_deployment_mode == 'server_agent' else
+         'docker-compose_proxy_agent.yml.j2' if zabbix_deployment_mode == 'proxy_agent' else
+         'docker-compose_proxy.yml.j2' if zabbix_deployment_mode == 'proxy' else
+         'docker-compose_agent.yml.j2' if zabbix_deployment_mode == 'agent' else '' }}
 
-    - name: Create variables file for Zabbix server + agent
-      template:
-        src: "env_vars/{{ item.src }}"
-        dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
-      loop:
-        - {src: '.env_srv.yml.j2', dest: '.env_srv'}
-        - {src: '.env_db_mysql.yml.j2', dest: '.env_db_mysql'}
-        - {src: '.env_web.yml.j2', dest: '.env_web'}
-        - {src: '.env_agent.yml.j2', dest: '.env_agent'}
-        - {src: '.env_web_service.yml.j2', dest: '.env_web_service'}
+- name: Fail if deployment mode is invalid
+  fail:
+    msg: "Invalid zabbix_deployment_mode '{{ zabbix_deployment_mode }}'"
+  when: zbx_docker_compose_tmp | length == 0
 
-        - {src: '.MYSQL_USER.yml.j2', dest: '.MYSQL_USER'}
-        - {src: '.MYSQL_PASSWORD.yml.j2', dest: '.MYSQL_PASSWORD'}
-        - {src: '.MYSQL_ROOT_USER.yml.j2', dest: '.MYSQL_ROOT_USER'}
-        - {src: '.MYSQL_ROOT_PASSWORD.yml.j2', dest: '.MYSQL_ROOT_PASSWORD'}
-
-  when: must_zbx_server_agent_installed|bool == true
-
-# Zabbix proxy + agent
-- name: Zabbix proxy + agent
-  block:
-    - name: Set default template for docker-compose
-      set_fact:
-        zbx_docker_compose_tmp: 'docker-compose_proxy_agent.yml.j2'
-
-    - name: Create variables file for Zabbix server + agent
-      template:
-        src: "env_vars/{{ item.src }}"
-        dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
-      loop:
-        - {src: '.env_prx.yml.j2', dest: '.env_prx'}
-        - {src: '.env_agent.yml.j2', dest: '.env_agent'}
-
-  when: must_zbx_proxy_agent_installed|bool == true
-
-# Zabbix proxy
-- name: Zabbix proxy
-  block:
-    - name: Set default template for docker-compose
-      set_fact:
-        zbx_docker_compose_tmp: 'docker-compose_proxy.yml.j2'
-
-    - name: Create variables file for Zabbix proxy
-      template:
-        src: "env_vars/{{ item.src }}"
-        dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
-      loop:
-        - {src: '.env_prx.yml.j2', dest: '.env_prx'}
-
-  when: must_zbx_proxy_installed|bool == true
-
-# Zabbix agent
-- name: Zabbix agent
-  block:
-    - name: Set default template for docker-compose
-      set_fact:
-        zbx_docker_compose_tmp: 'docker-compose_agent.yml.j2'
-
-    - name: Create variables file for Zabbix agent
-      template:
-        src: "env_vars/{{ item.src }}"
-        dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
-      loop:
-        - {src: '.env_agent.yml.j2', dest: '.env_agent'}
-
-  when: must_zbx_agent_installed|bool == true
+- name: Render variables files for selected deployment
+  template:
+    src: "env_vars/{{ item.src }}"
+    dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
+  loop: "{{
+    (
+      [ {'src': '.env_srv.yml.j2', 'dest': '.env_srv'},
+        {'src': '.env_db_mysql.yml.j2', 'dest': '.env_db_mysql'},
+        {'src': '.env_web.yml.j2', 'dest': '.env_web'},
+        {'src': '.env_agent.yml.j2', 'dest': '.env_agent'},
+        {'src': '.env_web_service.yml.j2', 'dest': '.env_web_service'},
+        {'src': '.MYSQL_USER.yml.j2', 'dest': '.MYSQL_USER'},
+        {'src': '.MYSQL_PASSWORD.yml.j2', 'dest': '.MYSQL_PASSWORD'},
+        {'src': '.MYSQL_ROOT_USER.yml.j2', 'dest': '.MYSQL_ROOT_USER'},
+        {'src': '.MYSQL_ROOT_PASSWORD.yml.j2', 'dest': '.MYSQL_ROOT_PASSWORD'}
+      ] if zabbix_deployment_mode == 'server_agent' else
+      [ {'src': '.env_prx.yml.j2', 'dest': '.env_prx'},
+        {'src': '.env_agent.yml.j2', 'dest': '.env_agent'}
+      ] if zabbix_deployment_mode == 'proxy_agent' else
+      [ {'src': '.env_prx.yml.j2', 'dest': '.env_prx'}
+      ] if zabbix_deployment_mode == 'proxy' else
+      [ {'src': '.env_agent.yml.j2', 'dest': '.env_agent'} ]
+    )
+  }}"
 
 # Docker-compose.yml
 - name: Create docker-compose file

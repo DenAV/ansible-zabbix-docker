@@ -1,31 +1,108 @@
-Role Name
-=========
+Install Zabbix (Docker) Role
+============================
 
-A brief description of the role goes here.
+This role deploys Zabbix components (server, proxy, web, web-service, agent) using Docker Compose on Debian/Ubuntu hosts. It supports Zabbix 7.4.5, generates TLS PSK secrets, and can register/update hosts via the Zabbix API.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- Ansible >= 2.10
+- Docker Engine + Compose v2 (via `docker compose`)
+- Target OS: Ubuntu 24.04 LTS (also Debian 11/12) with systemd
+- Become (sudo) privileges on the target machine
+- Internet access to pull Zabbix and DB images
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Key variables (see `defaults/main.yml` for full list):
+
+- `zabbix_version`: default `7.4.5`; Zabbix release used for images.
+- `zabbix_image_flavor`: `alpine` (default) or `ubuntu`.
+- `zabbix_image_tag`: composed tag `{{ zabbix_image_flavor }}-{{ zabbix_version }}`.
+- `zabbix_deployment_mode`: one of `server_agent`, `proxy_agent`, `proxy`, `agent`.
+- `zabbix_server_image`, `zabbix_proxy_image`, `zabbix_web_server_image`, `zabbix_web_service_image`, `zabbix_agent_image`: image names (repository prefix `zabbix/` is applied in templates).
+- `mysql_server_image`: default `mysql:8.0-oracle` (adjust if needed).
+- `zbx_docker_compose_file`: output compose file name (default `docker-compose.yml`).
+- `zbx_container_state`: desired compose state (`present` or `absent`).
+
+Security & networking:
+- `zabbix_agent_privileged`: default `false`; avoid privileged unless required.
+- `zabbix_agent_pid_host`: default `false`; disable host PID namespace by default.
+- `zabbix_agent_network_mode_host`: default `false`; avoid host networking by default.
+- `zabbix_agent_cap_add`: list of extra capabilities to grant to agent (optional).
+- `zbx_net_frontend_subnet`: default `172.30.238.0/24`.
+- `zbx_net_backend_subnet`: default `172.30.239.0/24`.
+- `zabbix_enable_healthchecks`: default `true`; adds simple healthchecks to agent and can be extended to other services.
+
+API & PSK:
+- `zabbix_install_pip_packages`: default `true` (installs `zabbix-api` on localhost).
+- `zbx_pskfile_secret`: generated automatically if missing; stored at `{{ zbx_volumes_local_path }}/var/enc/secret.psk`.
+- `zabbix_api_create_hostgroup`, `zabbix_api_create_hosts`, `zabbix_api_update_psk`: booleans controlling API automation.
+- `zabbix_agent_tlspsk_secret`, `zabbix_agent_tlspskidentity`: PSK secret and identity used by agent and API updates.
+
+Behavior Overview
+-----------------
+
+- Renders environment files for selected deployment mode and builds a Docker Compose file from templates.
+- Uses dynamic image tags like `zabbix/zabbix-server-mysql:{{ zabbix_image_tag }}`.
+- Creates a PSK file if missing and sets secure permissions.
+- Starts services with `docker compose` via the Ansible Docker collection.
+- Optionally registers/updates hosts in Zabbix using API calls once services are up.
+
+Security Hardening
+------------------
+
+- Agent container runs without `privileged`, `pid: host`, or `network_mode: host` by default; enable only when necessary.
+- Configure capabilities via `zabbix_agent_cap_add` (e.g., `SYS_PTRACE`, `NET_RAW`) rather than full privilege.
+- Parameterize network subnets to avoid collisions on busy hosts.
+- Consider moving Zabbix API credentials and PSK secrets to Ansible Vault.
+- Add resource limits and healthchecks for server/proxy if desired.
+
+Example Playbooks
+-----------------
+
+Server + Agent on Ubuntu 24.04 with Zabbix 7.4.5 (alpine):
+
+```yaml
+- hosts: zabbix
+  become: yes
+  roles:
+    - role: install_zabbix_docker
+      vars:
+        zabbix_version: "7.4.5"
+        zabbix_image_flavor: "alpine"
+        zabbix_deployment_mode: "server_agent"
+        zabbix_agent_privileged: false
+        zabbix_agent_network_mode_host: false
+        zabbix_agent_cap_add:
+          - NET_RAW
+```
+
+Proxy + Agent with custom subnets:
+
+```yaml
+- hosts: zbx-proxy
+  become: yes
+  roles:
+    - role: install_zabbix_docker
+      vars:
+        zabbix_deployment_mode: "proxy_agent"
+        zbx_net_frontend_subnet: "10.20.38.0/24"
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+- `community.docker` Ansible collection for Compose tasks.
+- Docker Engine with Compose v2 on target host.
 
-Example Playbook
-----------------
+Notes
+-----
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+- Templates previously defaulted to 6.x images; now use `zabbix_version` and `zabbix_image_tag`. Ensure the tag exists in Docker Hub.
+- If using host networking for agent, review security implications carefully.
+- For MySQL tuning/SSL, enable related `ZBX_DBTLS*` variables in `.env_srv` and secrets.
 
 License
 -------
@@ -35,4 +112,4 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Maintained by the `ansible-zabbix-docker` project. Contributions and issues via repository tracker.
