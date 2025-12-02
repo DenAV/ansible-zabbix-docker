@@ -37,6 +37,24 @@
   tags:
     - api
 
+- name: Wait for Zabbix server port (10051) on localhost
+  wait_for:
+    host: 127.0.0.1
+    port: 10051
+    delay: 2
+    timeout: 120
+  when:
+    - zabbix_deployment_mode in ['server_agent']
+
+- name: Wait for Zabbix proxy port (10051) on localhost
+  wait_for:
+    host: 127.0.0.1
+    port: 10051
+    delay: 2
+    timeout: 120
+  when:
+    - zabbix_deployment_mode in ['proxy_agent','proxy']
+
 - name: "API | Create a new host or update an existing host's info"
   zabbix_host:
     server_url: "{{ zabbix_url }}"

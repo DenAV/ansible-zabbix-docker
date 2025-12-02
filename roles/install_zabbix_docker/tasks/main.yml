@@ -37,3 +37,26 @@
   when: 
     - check_container is defined and check_container['services']['zabbix-agent']['zabbix-agent'].state.running | bool
     - zabbix_api_create_hosts | bool
+
+- name: Pre-pull Zabbix images for selected mode
+  community.docker.docker_image:
+    name: "{{ item }}"
+    source: pull
+  loop: "{{
+    (
+      [ 'zabbix/{{ zabbix_server_image }}:{{ zabbix_image_tag }}',
+        'zabbix/{{ zabbix_web_server_image }}:{{ zabbix_image_tag }}',
+        'zabbix/{{ zabbix_web_service_image }}:{{ zabbix_image_tag }}',
+        'zabbix/{{ zabbix_agent_image }}:{{ zabbix_image_tag }}',
+        mysql_server_image
+      ] if zabbix_deployment_mode == 'server_agent' else
+      [ 'zabbix/{{ zabbix_proxy_image }}:{{ zabbix_image_tag }}',
+        'zabbix/{{ zabbix_agent_image }}:{{ zabbix_image_tag }}'
+      ] if zabbix_deployment_mode == 'proxy_agent' else
+      [ 'zabbix/{{ zabbix_proxy_image }}:{{ zabbix_image_tag }}' ] if zabbix_deployment_mode == 'proxy' else
+      [ 'zabbix/{{ zabbix_agent_image }}:{{ zabbix_image_tag }}' ]
+    )
+  }}"
+  when:
+    - zbx_container_state == 'present'
+    - zbx_docker_compose_tmp is defined
