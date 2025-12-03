@@ -11,21 +11,21 @@ services:
     hostname: zabbix-agent
     container_name: zabbix-agent
     volumes:
-    - /etc/localtime:/etc/localtime:ro
-    - /etc/timezone:/etc/timezone:ro
-    - "{{ zbx_volumes_local_path }}/etc/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro"
-    - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
-    - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
-    - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
-    - /proc:/proc
-    - /sys:/sys
-    - /dev:/dev:ro
-    - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    - /:/rootfs:ro
-    - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ zbx_volumes_local_path }}/etc/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro"
+      - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
+      - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
+      - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
+      - /proc:/proc
+      - /sys:/sys
+      - /dev:/dev:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
     env_file:
-    - "{{ zbx_variables_local_path }}/.env_agent"
+      - "{{ zbx_variables_local_path }}/.env_agent"
     privileged: {{ 'true' if zabbix_agent_privileged | bool else 'false' }}
 {% if zabbix_agent_pid_host | bool %}
     pid: host
