@@ -3,51 +3,51 @@ services:
   # zabbix-proxy
   zabbix-proxy:
 {% if (zabbix_proxy_image is defined) and (zabbix_releases_image is defined)%}
-  image: zabbix/{{ zabbix_proxy_image }}:{{ zabbix_releases_image }}
+    image: zabbix/{{ zabbix_proxy_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-proxy-sqlite3:{{ zabbix_image_tag }}
+    image: zabbix/zabbix-proxy-sqlite3:{{ zabbix_image_tag }}
 {% endif %}
-  ports:
-    - "10051:10051"
-  hostname: zabbix-proxy
-  container_name: zabbix-proxy
-  volumes:
-    - /etc/localtime:/etc/localtime:ro
-    - /etc/timezone:/etc/timezone:ro
-    - "{{ zbx_volumes_local_path }}/var/db_data:/var/lib/zabbix/db_data:rw"
-    - "{{ zbx_volumes_local_path }}/usr/externalscripts:/usr/lib/zabbix/externalscripts:ro"
-    - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
-    - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
-    - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
-    - "{{ zbx_volumes_local_path }}/var/mibs:/var/lib/zabbix/mibs:ro"
-  restart: always
-  ulimits:
-    nproc: 65535
-    nofile:
-      soft: 20000
-      hard: 40000
-  env_file:
-   - "{{ zbx_variables_local_path }}/.env_prx"
-  networks:
-   zbx_net_frontend:
-     ipv4_address: 172.16.238.2
-     aliases:
-       - zabbix-proxy
-  stop_grace_period: 30s
+    ports:
+      - "10051:10051"
+    hostname: zabbix-proxy
+    container_name: zabbix-proxy
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ zbx_volumes_local_path }}/var/db_data:/var/lib/zabbix/db_data:rw"
+      - "{{ zbx_volumes_local_path }}/usr/externalscripts:/usr/lib/zabbix/externalscripts:ro"
+      - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
+      - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
+      - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
+      - "{{ zbx_volumes_local_path }}/var/mibs:/var/lib/zabbix/mibs:ro"
+    restart: always
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    env_file:
+      - "{{ zbx_variables_local_path }}/.env_prx"
+    networks:
+        zbx_net_frontend:
+        ipv4_address: 172.16.238.2
+        aliases:
+          - zabbix-proxy
+    stop_grace_period: 30s
 {% if zabbix_enable_healthchecks %}
-  healthcheck:
-    test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
-    interval: 15s
-    timeout: 5s
-    retries: 6
-    start_period: 40s
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
 {% endif %}
-  labels:
-    com.zabbix.description: "Zabbix proxy with SQLite3 database support"
-    com.zabbix.company: "Zabbix LLC"
-    com.zabbix.component: "zabbix-proxy"
-    com.zabbix.dbtype: "sqlite3"
-    com.zabbix.os: "alpine"
+    labels:
+      com.zabbix.description: "Zabbix proxy with SQLite3 database support"
+      com.zabbix.company: "Zabbix LLC"
+      com.zabbix.component: "zabbix-proxy"
+      com.zabbix.dbtype: "sqlite3"
+      com.zabbix.os: "alpine"
 
   # zabbix-agent 
   zabbix-agent:
