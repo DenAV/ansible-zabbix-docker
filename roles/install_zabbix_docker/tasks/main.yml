@@ -35,7 +35,8 @@
 - name: preparation docker-compose file
   include_tasks: api.yml
   when: 
-    - check_container is defined and check_container['services']['zabbix-agent']['zabbix-agent'].state.running | bool
+    - check_container is defined
+    - (check_container.failed | default(false)) == false
     - zabbix_api_create_hosts | bool
 
 - name: Pre-pull Zabbix images for selected mode
