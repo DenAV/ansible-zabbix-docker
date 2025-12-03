@@ -111,14 +111,14 @@ services:
      - zabbix-web-nginx
    zbx_net_frontend:
   stop_grace_period: 10s
-    {% if zabbix_enable_healthchecks %}
-    healthcheck:
-      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 6
-      start_period: 40s
-    {% endif %}
+  {% if zabbix_enable_healthchecks %}
+  healthcheck:
+    test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
+    interval: 15s
+    timeout: 5s
+    retries: 6
+    start_period: 40s
+  {% endif %}
   sysctls:
    - net.core.somaxconn=65535
   labels:
