@@ -108,7 +108,7 @@ services:
     networks:
       zbx_net_backend:
         aliases:
-        - zabbix-web-nginx
+          - zabbix-web-nginx
       zbx_net_frontend:
     stop_grace_period: 10s
 {% if zabbix_enable_healthchecks %}
@@ -206,7 +206,7 @@ services:
     networks:
       zbx_net_backend:
         aliases:
-        - zabbix-web-service
+          - zabbix-web-service
     stop_grace_period: 5s
     labels:
       com.zabbix.description: "Zabbix web service"
@@ -247,7 +247,7 @@ services:
     networks:
       zbx_net_backend:
         aliases:
-        - mysql-server
+          - mysql-server
 
   db_data_mysql:
     image: busybox

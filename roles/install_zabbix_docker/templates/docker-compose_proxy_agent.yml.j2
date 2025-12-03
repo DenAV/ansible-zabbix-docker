@@ -29,7 +29,7 @@ services:
     env_file:
       - "{{ zbx_variables_local_path }}/.env_prx"
     networks:
-        zbx_net_frontend:
+      zbx_net_frontend:
         ipv4_address: 172.16.238.2
         aliases:
           - zabbix-proxy
@@ -112,4 +112,4 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: {{ zbx_net_frontend_subnet }}
+        - subnet: {{ zbx_net_frontend_subnet }}
