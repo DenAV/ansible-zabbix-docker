@@ -1,5 +1,9 @@
 ---
 # defaults file for install_zabbix_docker
+
+# Install pip packages for Zabbix API interaction
+zabbix_install_pip_packages: true
+
 # Images
 # Zabbix versioning
 zabbix_version: '7.4.5'
@@ -41,7 +45,13 @@ zbx_docker_compose_file: "docker-compose.yml"
 # Zabbix API stuff
 zabbix_vmname: "{{zbx_agent_hostname}}"
 
-zabbix_install_pip_packages: true
+# Prefer using an API token when available. If `zabbix_api_token` is not set,
+# the role will fall back to `zabbix_api_user` / `zabbix_api_pass`.
+zabbix_api_token: ""
+zabbix_api_user: "Admin"
+zabbix_api_pass: "zabbix"
+zabbix_api_http_user: ""
+zabbix_api_http_password: ""
 
 zabbix_agent_tlspsk_secret: "{{ zbx_pskfile_secret }}"
 zabbix_agent_tlspskidentity: "{{ zbx_agent_psk_identity }}"
