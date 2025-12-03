@@ -8,32 +8,43 @@
   gather_facts: true
 
   vars:
-    # what should be installed
+    #! what should be installed
     # Images
-    zabbix_releases_image: 'alpine-6.0-latest'
+    zabbix_version: '7.4.5'
 
-    # Zabbix server + agent
-    must_zbx_server_agent_installed: false
-    # Zabbix proxy + agent
-    must_zbx_proxy_agent_installed: true
-    # Zabbix proxy
-    must_zbx_proxy_installed: false
-    # Zabbix agent
-    must_zbx_agent_installed: false
+    #! Zabbix deployment mode: 
+    zabbix_deployment_mode: 'proxy_agent'
 
-    # for .env_agent
-    zbx_agent_server_host: 'zabbix-proxy'
+    #! for .env_agent
+    # Note: zbx_agent_server_host controls where the Zabbix Agent sends its active connections.
+    # - For server_agent: set to the Server service (typically 'zabbix-server')
+    # - For proxy_agent: set to the Proxy service (typically 'zabbix-proxy')
+    # - For agent-only: set to a reachable address (IP/FQDN) of your Server or Proxy
+    # In this Proxy+Agent playbook, the agent should use the local proxy.
+    zbx_agent_server_host: 'zabbix-proxy' # Agent connects to the Proxy service
+
+    # Note: zbx_agent_hostname is the host name as it will appear in Zabbix.
+    # Use a stable, unique identifier (e.g., OS hostname or FQDN).
+    # This value is also used to derive the default PSK identity
+    # ("<hostname>-identity") for secure agent-server/proxy communication.
     zbx_agent_hostname: 'agent-hostname'
 
-    # for API
-    zabbix_proxy: "z-proxy-Test"
+    #! for API
+    api_zabbix_proxy: "z-proxy-Test" # Name of proxy in Zabbix server
     zabbix_host_groups:
-      - "Test-Cloud"
+      - "Zabbix-Proxy"
     zabbix_link_templates:
       - "Linux by Zabbix agent"
 
     # for .env_prx
+    # Note: zbx_proxy_server_host is where the proxy sends data (the Zabbix Server).
+    # Use the server service name within Compose (typically 'zabbix-server')
+    # or an IP/FQDN if the server is external.
     zbx_proxy_server_host: 'zabbix-server'
+
+    # Note: zbx_proxy_hostname is the proxy's identity shown in Zabbix and
+    # used for PSK identity defaults ("<proxy-hostname>-identity").
+    # Choose a stable, unique name for your environment.
     zbx_proxy_hostname: 'zbx-proxy-hostname'
 
   tasks:
@@ -44,6 +55,9 @@
         docker_users:
           - administrator
           - zabbix
+      # Note: These roles target Linux hosts. The Windows guard prevents
+      # accidental execution on a Windows control machine. Run this playbook
+      # from a Linux/macOS control host or target a Linux remote instead of localhost.
       when: ansible_os_family != 'Windows'
 
     - name: Role install_zabbix_docker
@@ -51,4 +65,5 @@
         name: install_zabbix_docker
       vars:
         zbx_container_state: 'present' # 'absent'
+      # Same platform guard: role expects Linux with Docker/Compose v2.
       when: ansible_os_family != 'Windows'

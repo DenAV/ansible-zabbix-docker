@@ -68,7 +68,7 @@
     status: "{{ zabbix_host_status }}"
     state: "{{ zabbix_create_host }}"
     force: "{{ zabbix_update_host }}"
-    proxy: "{{ zabbix_proxy }}"
+    proxy: "{{ api_zabbix_proxy }}"
     interfaces: "{{ zabbix_agent_interfaces }}"
     visible_name: "{{ zabbix_visible_hostname | default(zabbix_agent_hostname) }}"
     tls_psk: "{{ zabbix_agent_tlspsk_secret | default(omit) }}"

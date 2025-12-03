@@ -44,7 +44,8 @@ zabbix_vmname: "{{zbx_agent_hostname}}"
 zabbix_install_pip_packages: true
 
 zabbix_agent_tlspsk_secret: "{{ zbx_pskfile_secret }}"
-zabbix_agent_tlspskidentity: "{{ zbx_proxy_psk_identity }}"
+zabbix_agent_tlspskidentity: "{{ zbx_agent_psk_identity }}"
+api_zabbix_proxy: "{{ zbx_proxy_hostname }}"
 zabbix_api_create_hostgroup: true
 zabbix_api_create_hosts: true
 zabbix_api_update_psk: true
