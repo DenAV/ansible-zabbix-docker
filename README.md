@@ -38,6 +38,12 @@ ansible-playbook playbooks/pl_zbx_docker_setup_agent_local.yml -bK
 
 Tip: Use `sudo ansible-playbook ...` if you prefer not to provide `-K`.
 
+### Production Playbooks Naming
+
+- Playbooks intended for production use are prefixed with `prod-` (e.g., `prod-zbx-server.yml`).
+- This helps distinguish production runs from local/test playbooks (`pl_*` examples above).
+- Adjust variables, inventory, and vault usage accordingly for production deployments.
+
 ## Configuration Overview
 
 - Docker role vars (see `roles/install_docker/README.md`):

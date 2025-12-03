@@ -1,3 +1,6 @@
+# Product playbooks with prefix prod-*.yml
+prod-*.yml
+
 # Local .terraform directories
 **/.terraform/*
 
