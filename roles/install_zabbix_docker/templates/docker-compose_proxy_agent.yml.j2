@@ -76,8 +76,12 @@ services:
   env_file:
    - "{{ zbx_variables_local_path }}/.env_agent"
   privileged: {{ 'true' if zabbix_agent_privileged | bool else 'false' }}
-  pid: {{ 'host' if zabbix_agent_pid_host | bool else '' }}
-  network_mode: {{ 'host' if zabbix_agent_network_mode_host | bool else '' }}
+  {% if zabbix_agent_pid_host | bool %}
+  pid: host
+  {% endif %}
+  {% if zabbix_agent_network_mode_host | bool %}
+  network_mode: host
+  {% endif %}
   {% if zabbix_agent_cap_add | length > 0 %}
   cap_add:
   {% for cap in zabbix_agent_cap_add %}
