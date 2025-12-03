@@ -85,6 +85,7 @@ The role renders `.env_*` files and a `docker-compose.yml` in a local project pa
 - Ensure Docker + Compose v2 is present (`docker compose version`).
 - If images fail to pull, verify `zabbix_version` and `zabbix_image_flavor` exist on Docker Hub.
 - For API automation, confirm `zabbix_url`, credentials, and network reachability.
+- For a full checklist and ready-to-run commands, see [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).
 
 ## Next Steps
 
