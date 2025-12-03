@@ -28,11 +28,15 @@ services:
         hard: 40000
     env_file:
       - "{{ zbx_variables_local_path }}/.env_prx"
+{% if zabbix_proxy_network_mode_host | bool %}
+    network_mode: host
+{% else %}
     networks:
       zbx_net_frontend:
-        ipv4_address: 172.16.238.2
+        ipv4_address: {{ zbx_proxy_frontend_ip }}
         aliases:
           - zabbix-proxy
+{% endif %}
     stop_grace_period: 30s
 {% if zabbix_enable_healthchecks %}
     healthcheck:
@@ -79,8 +83,16 @@ services:
 {% if zabbix_agent_pid_host | bool %}
     pid: host
 {% endif %}
+{% if zabbix_agent_pid_host | bool %}
+    pid: host
+{% endif %}
 {% if zabbix_agent_network_mode_host | bool %}
     network_mode: host
+{% else %}
+    networks:
+      zbx_net_frontend:
+        aliases:
+          - zabbix-agent
 {% endif %}
 {% if zabbix_agent_cap_add | length > 0 %}
     cap_add:

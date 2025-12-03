@@ -27,11 +27,15 @@ services:
         hard: 40000
     env_file:
       - "{{ zbx_variables_local_path }}/.env_prx"
+{% if zabbix_proxy_network_mode_host | bool %}
+    network_mode: host
+{% else %}
     networks:
       zbx_net_frontend:
-        ipv4_address: 172.16.238.2
+        ipv4_address: {{ zbx_proxy_frontend_ip }}
         aliases:
           - zabbix-proxy
+{% endif %}
     stop_grace_period: 30s
 {% if zabbix_enable_healthchecks %}
     healthcheck:
@@ -48,6 +52,7 @@ services:
       com.zabbix.dbtype: "sqlite3"
       com.zabbix.os: "alpine"
 
+{% if not zabbix_proxy_network_mode_host | bool %}
 # zabbix-network
 networks:
   zbx_net_frontend:
@@ -58,3 +63,4 @@ networks:
       driver: default
       config:
       - subnet: {{ zbx_net_frontend_subnet }}
+{% endif %}

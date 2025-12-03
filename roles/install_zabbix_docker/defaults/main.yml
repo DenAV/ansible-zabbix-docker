@@ -86,9 +86,12 @@ zabbix_agent_tls_config:
 
 # Security & networking
 zabbix_agent_privileged: false
-zabbix_agent_pid_host: false
-zabbix_agent_network_mode_host: false
+zabbix_agent_pid_host: false # Use host PID namespace for agent container
+zabbix_agent_network_mode_host: false # Use host network mode for agent container
 zabbix_agent_cap_add: [] # List of additional capabilities to add to the agent container
+
+zabbix_proxy_network_mode_host: false # Use host network mode for proxy container
+zbx_proxy_frontend_ip: '172.30.238.2'
 
 # Compose networks (configurable to avoid collisions)
 zbx_net_frontend_subnet: '172.30.238.0/24'
