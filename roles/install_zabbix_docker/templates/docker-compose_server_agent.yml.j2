@@ -51,20 +51,20 @@ services:
    - net.ipv4.conf.all.accept_redirects=0
    - net.ipv4.conf.all.secure_redirects=0
    - net.ipv4.conf.all.send_redirects=0
-  {% if zabbix_enable_healthchecks %}
+{% if zabbix_enable_healthchecks %}
   healthcheck:
     test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
     interval: 15s
     timeout: 5s
     retries: 6
     start_period: 40s
-  {% endif %}
+{% endif %}
   labels:
-   com.zabbix.description: "Zabbix server with MySQL database support"
-   com.zabbix.company: "Zabbix LLC"
-   com.zabbix.component: "zabbix-server"
-   com.zabbix.dbtype: "mysql"
-  com.zabbix.os: "{{ zabbix_image_flavor }}"
+    com.zabbix.description: "Zabbix server with MySQL database support"
+    com.zabbix.company: "Zabbix LLC"
+    com.zabbix.component: "zabbix-server"
+    com.zabbix.dbtype: "mysql"
+    com.zabbix.os: "{{ zabbix_image_flavor }}"
 
  zabbix-web-nginx-mysql:
 {% if (zabbix_web_server_image is defined) and (zabbix_releases_image is defined)%}
@@ -111,14 +111,14 @@ services:
      - zabbix-web-nginx
    zbx_net_frontend:
   stop_grace_period: 10s
-  {% if zabbix_enable_healthchecks %}
+{% if zabbix_enable_healthchecks %}
   healthcheck:
     test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
     interval: 15s
     timeout: 5s
     retries: 6
     start_period: 40s
-  {% endif %}
+{% endif %}
   sysctls:
    - net.core.somaxconn=65535
   labels:
@@ -127,7 +127,7 @@ services:
    com.zabbix.component: "zabbix-frontend"
    com.zabbix.webserver: "nginx"
    com.zabbix.dbtype: "mysql"
-  com.zabbix.os: "{{ zabbix_image_flavor }}"
+   com.zabbix.os: "{{ zabbix_image_flavor }}"
 
  zabbix-agent:
 {% if (zabbix_agent_image is defined) and (zabbix_releases_image is defined)%}
@@ -155,32 +155,32 @@ services:
   env_file:
    - "{{ zbx_variables_local_path }}/.env_agent"
   privileged: {{ 'true' if zabbix_agent_privileged | bool else 'false' }}
-  {% if zabbix_agent_pid_host | bool %}
+{% if zabbix_agent_pid_host | bool %}
   pid: host
-  {% endif %}
-  {% if zabbix_agent_network_mode_host | bool %}
+{% endif %}
+{% if zabbix_agent_network_mode_host | bool %}
   network_mode: host
-  {% endif %}
-  {% if zabbix_agent_cap_add | length > 0 %}
+{% endif %}
+{% if zabbix_agent_cap_add | length > 0 %}
   cap_add:
-  {% for cap in zabbix_agent_cap_add %}
+{% for cap in zabbix_agent_cap_add %}
     - {{ cap }}
-  {% endfor %}
-  {% endif %}
+{% endfor %}
+{% endif %}
   stop_grace_period: 5s
-  {% if zabbix_enable_healthchecks %}
+{% if zabbix_enable_healthchecks %}
   healthcheck:
     test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10050' || exit 1"]
     interval: 10s
     timeout: 5s
     retries: 5
     start_period: 30s
-  {% endif %}
+{% endif %}
   labels:
-   com.zabbix.description: "Zabbix agent"
-   com.zabbix.company: "Zabbix LLC"
-   com.zabbix.component: "zabbix-agentd"
-   com.zabbix.os: "alpine"
+    com.zabbix.description: "Zabbix agent"
+    com.zabbix.company: "Zabbix LLC"
+    com.zabbix.component: "zabbix-agentd"
+    com.zabbix.os: "alpine"
 
  zabbix-web-service:
 {% if (zabbix_web_service_image is defined) and (zabbix_releases_image is defined)%}

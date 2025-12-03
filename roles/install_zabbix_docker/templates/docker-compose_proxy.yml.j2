@@ -33,14 +33,14 @@ services:
      aliases:
        - zabbix-proxy
   stop_grace_period: 30s
-  {% if zabbix_enable_healthchecks %}
+{% if zabbix_enable_healthchecks %}
   healthcheck:
     test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
     interval: 15s
     timeout: 5s
     retries: 6
     start_period: 40s
-  {% endif %}
+{% endif %}
   labels:
    com.zabbix.description: "Zabbix proxy with SQLite3 database support"
    com.zabbix.company: "Zabbix LLC"
