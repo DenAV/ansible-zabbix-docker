@@ -1,0 +1,62 @@
+---
+# Example: Deploy Zabbix Proxy + Agent locally via Docker Compose
+# Run: ansible-playbook playbooks/pl_zbx_example_proxy_agent.yml -bK -i hosts
+
+- name: Zabbix Proxy + Agent (local)
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: true
+
+  vars:
+    zabbix_version: "7.4.5"
+    zabbix_image_flavor: "alpine"
+    zabbix_deployment_mode: "proxy_agent"
+
+    # Agent connects to the local proxy service
+      # Note: zbx_agent_server_host controls where the Zabbix Agent sends its active connections.
+      # - For server_agent: set to the Server service (typically 'zabbix-server')
+      # - For proxy_agent: set to the Proxy service (typically 'zabbix-proxy')
+      # - For agent-only: set to a reachable address (IP/FQDN) of your Server or Proxy
+      # In this Proxy+Agent playbook, the agent should use the local proxy.
+    zbx_agent_server_host: "zabbix-proxy"
+    # Agent hostname as shown in Zabbix
+      # Note: zbx_agent_hostname is the host name as it will appear in Zabbix.
+      # Use a stable, unique identifier (e.g., OS hostname or FQDN).
+      # This value is also used to derive the default PSK identity
+      # ("<hostname>-identity") for secure agent-server/proxy communication.
+    zbx_agent_hostname: "agent-local"
+
+    # Proxy sends data to the server; use compose service or external IP/FQDN
+      # Note: zbx_proxy_server_host is where the proxy sends data (the Zabbix Server).
+      # Use the server service name within Compose (typically 'zabbix-server')
+      # or an IP/FQDN if the server is external.
+    zbx_proxy_server_host: "zabbix-server"
+    # Proxy identity shown in Zabbix (also used for PSK identity defaults)
+      # Note: zbx_proxy_hostname is the proxy's identity shown in Zabbix and
+      # used for PSK identity defaults ("<proxy-hostname>-identity").
+      # Choose a stable, unique name for your environment.
+    zbx_proxy_hostname: "zbx-proxy-local"
+
+    # Optional: API registration (adjust to your server/proxy names and credentials)
+    # zabbix_url: "http://127.0.0.1:8080"
+    # zabbix_api_user: "Admin"
+    # zabbix_api_pass: "zabbix"
+    # api_zabbix_proxy: "zbx-proxy-local"
+    # zabbix_api_create_hosts: true
+
+  tasks:
+    - name: Install Docker prerequisites
+      include_role:
+        name: install_docker
+      # Note: These roles target Linux hosts. The Windows guard prevents
+      # accidental execution on a Windows control machine. Run this playbook
+      # from a Linux/macOS control host or target a Linux remote instead of localhost.
+      when: ansible_os_family != 'Windows'
+
+    - name: Deploy Zabbix stack (proxy + agent)
+      include_role:
+        name: install_zabbix_docker
+      vars:
+        zbx_container_state: present
+      when: ansible_os_family != 'Windows'

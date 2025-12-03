@@ -1,0 +1,32 @@
+---
+# Example: Deploy Zabbix Server + Agent locally via Docker Compose
+# Run: ansible-playbook playbooks/pl_zbx_example_server_agent.yml -bK -i hosts
+
+- name: Zabbix Server + Agent (local)
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: true
+
+  vars:
+    zabbix_version: "7.4.5"
+    zabbix_image_flavor: "alpine"
+    zabbix_deployment_mode: "server_agent"
+
+    # Agent connects to the local server service
+    zbx_agent_server_host: "zabbix-server"
+    # Hostname as shown in Zabbix (also used for PSK identity defaults)
+    zbx_agent_hostname: "agent-local"
+
+  tasks:
+    - name: Install Docker prerequisites
+      include_role:
+        name: install_docker
+      when: ansible_os_family != 'Windows'
+
+    - name: Deploy Zabbix stack (server + agent)
+      include_role:
+        name: install_zabbix_docker
+      vars:
+        zbx_container_state: present
+      when: ansible_os_family != 'Windows'

@@ -1,0 +1,38 @@
+---
+# Example: Install Docker Engine with Compose v2 and add users to docker group
+# Target: Debian/Ubuntu Linux hosts
+# Run: ansible-playbook playbooks/pl_install_docker_example.yml -bK -i hosts
+
+- name: Install Docker on Linux hosts
+  hosts: docker_hosts
+  become: true
+  gather_facts: true
+
+  vars:
+    # Manage Docker service and enable on boot
+    docker_service_manage: true
+    docker_service_state: started
+    docker_service_enabled: true
+
+    # Install Compose v2 plugin (docker compose)
+    docker_compose_plugin_install: true
+
+    # Add these users to the docker group
+    docker_users:
+      - ubuntu
+      - administrator
+
+    # Optional: daemon settings written to /etc/docker/daemon.json when non-empty
+    docker_daemon_options:
+      log-driver: "json-file"
+      log-opts:
+        max-size: "100m"
+        max-file: "3"
+
+    # Optional: pin to nightly channel (advanced)
+    # docker_apt_release_channel: nightly
+
+  tasks:
+    - name: Include install_docker role
+      include_role:
+        name: install_docker

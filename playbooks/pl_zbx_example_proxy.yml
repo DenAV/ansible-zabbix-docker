@@ -1,0 +1,32 @@
+---
+# Example: Deploy Zabbix Proxy only locally via Docker Compose
+# Run: ansible-playbook playbooks/pl_zbx_example_proxy.yml -bK -i hosts
+
+- name: Zabbix Proxy (local)
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: true
+
+  vars:
+    zabbix_version: "7.4.5"
+    zabbix_image_flavor: "alpine"
+    zabbix_deployment_mode: "proxy"
+
+    # Proxy sends data to the server; use compose service or external IP/FQDN
+    zbx_proxy_server_host: "zabbix-server"
+    # Proxy identity shown in Zabbix (also used for PSK identity defaults)
+    zbx_proxy_hostname: "zbx-proxy-local"
+
+  tasks:
+    - name: Install Docker prerequisites
+      include_role:
+        name: install_docker
+      when: ansible_os_family != 'Windows'
+
+    - name: Deploy Zabbix stack (proxy only)
+      include_role:
+        name: install_zabbix_docker
+      vars:
+        zbx_container_state: present
+      when: ansible_os_family != 'Windows'
