@@ -26,7 +26,7 @@
   when: check_path_tlspsk.stat.exists
 
 - name: Container Zabbix deploy
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ zbx_project_path }}"
     state: "{{ zbx_container_state }}"
   register: check_container

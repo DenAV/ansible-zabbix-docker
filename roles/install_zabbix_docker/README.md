@@ -40,7 +40,7 @@ API & PSK:
 - `zbx_pskfile_secret`: generated automatically if missing; stored at `{{ zbx_volumes_local_path }}/var/enc/secret.psk`.
 - `zabbix_api_create_hostgroup`, `zabbix_api_create_hosts`, `zabbix_api_update_psk`: booleans controlling API automation.
 - `zabbix_agent_tlspsk_secret`, `zabbix_agent_tlspskidentity`: PSK secret and identity used by agent and API updates. By default `zabbix_agent_tlspskidentity` maps to `zbx_agent_psk_identity`.
-- `api_zabbix_proxy`: proxy name as it exists in the Zabbix server, used when registering hosts via API (defaults to `zbx_proxy_hostname`).
+- `zabbix_api_proxy`: proxy name as it exists in the Zabbix server, used when registering hosts via API (defaults to `zbx_proxy_hostname`).
 
 Behavior Overview
 -----------------

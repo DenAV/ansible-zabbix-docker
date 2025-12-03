@@ -106,7 +106,12 @@ Notes
 - This role currently targets Debian-family distributions; the `install_docker.yml` tasks run only when `ansible_os_family == 'Debian'`.
 - Compose v2 is provided by `docker-compose-plugin`; use `docker compose ...` instead of `docker-compose`.
 - When `docker_daemon_options` is empty, `/etc/docker/daemon.json` is not created.
-- Group membership changes require a new login session; the role performs an SSH connection reset automatically.
+- Group membership changes require a new login session. The role performs an SSH connection reset automatically for remote SSH connections, but for `connection: local` (running on the control machine) you still need to start a new shell session for the user to pick up the new `docker` group. Options:
+  - Log out and back in, or start a new terminal.
+  - Run `newgrp docker` in your shell to refresh group membership for the current session.
+  - Use `sudo docker ...` temporarily until your session is refreshed.
+
+Tip: Ansible tasks using this role typically run with `become: true`, so Docker operations succeed even before your interactive shell has refreshed group membership.
 
 License
 -------

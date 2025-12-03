@@ -5,6 +5,14 @@
   include_vars:
     dir: vars
 
+- name: Debug OS gather_facts info.
+  debug:
+    msg:
+      - "ansible_os_family={{ ansible_os_family }}"
+      - "ansible_distribution={{ ansible_distribution }}"
+      - "ansible_distribution_version={{ ansible_distribution_version }}"
+  when: docker_debug | bool
+
 - include_tasks: install_docker.yml
   when: ansible_os_family == 'Debian'
 

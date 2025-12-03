@@ -21,10 +21,10 @@
     zbx_agent_server_host: 'zabbix-proxy' 
 
     # Agent hostname as shown in Zabbix
-    zbx_agent_hostname: 'agent-hostname'
+    zbx_agent_hostname: 'agent-hostname' #! change to your agent hostname
 
     #! for API
-    api_zabbix_proxy: "z-proxy-Test" # Name of proxy in Zabbix server
+    zabbix_api_proxy: "z-proxy-Test" # Name of proxy in Zabbix server
     zabbix_host_groups:
       - "Zabbix-Proxy"
     zabbix_link_templates:
