@@ -1,260 +1,260 @@
 version: '3.9'
 services:
 # zabbix-server
- zabbix-server:
+  zabbix-server:
 {% if (zabbix_server_image is defined) and (zabbix_releases_image is defined)%}
-  image: zabbix/{{ zabbix_server_image }}:{{ zabbix_releases_image }}
+    image: zabbix/{{ zabbix_server_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-server-mysql:{{ zabbix_image_tag }}
+    image: zabbix/zabbix-server-mysql:{{ zabbix_image_tag }}
 {% endif %}
-  hostname: zabbix-server
-  container_name: zabbix-server
-  ports:
-   - "10051:10051"
-  volumes:
-   - /etc/localtime:/etc/localtime:ro
-   - /etc/timezone:/etc/timezone:ro
-   - "{{ zbx_volumes_local_path }}/var/alertscripts:/usr/lib/zabbix/alertscripts:ro"
-   - "{{ zbx_volumes_local_path }}/usr/externalscripts:/usr/lib/zabbix/externalscripts:ro"
-   - "{{ zbx_volumes_local_path }}/var/dbscripts:/var/lib/zabbix/dbscripts:ro"
-   - "{{ zbx_volumes_local_path }}/var/export:/var/lib/zabbix/export:rw"
-   - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
-   - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
-   - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
-   - "{{ zbx_volumes_local_path }}/var/mibs:/var/lib/zabbix/mibs:ro"
-  ulimits:
-   nproc: 65535
-   nofile:
-    soft: 20000
-    hard: 40000
-  env_file:
-   - "{{ zbx_variables_local_path }}/.env_db_mysql"
-   - "{{ zbx_variables_local_path }}/.env_srv"
-  secrets:
-   - MYSQL_USER
-   - MYSQL_PASSWORD
-   - MYSQL_ROOT_USER
-   - MYSQL_ROOT_PASSWORD
-#   - client-key.pem
-#   - client-cert.pem
-#   - root-ca.pem
-  depends_on:
-   - mysql-server
-  networks:
-   zbx_net_backend:
-     aliases:
-      - zabbix-server
-   zbx_net_frontend:
-  stop_grace_period: 30s
-  sysctls:
-   - net.ipv4.ip_local_port_range=1024 65000
-   - net.ipv4.conf.all.accept_redirects=0
-   - net.ipv4.conf.all.secure_redirects=0
-   - net.ipv4.conf.all.send_redirects=0
+    hostname: zabbix-server
+    container_name: zabbix-server
+    ports:
+      - "10051:10051"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ zbx_volumes_local_path }}/var/alertscripts:/usr/lib/zabbix/alertscripts:ro"
+      - "{{ zbx_volumes_local_path }}/usr/externalscripts:/usr/lib/zabbix/externalscripts:ro"
+      - "{{ zbx_volumes_local_path }}/var/dbscripts:/var/lib/zabbix/dbscripts:ro"
+      - "{{ zbx_volumes_local_path }}/var/export:/var/lib/zabbix/export:rw"
+      - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
+      - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
+      - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
+      - "{{ zbx_volumes_local_path }}/var/mibs:/var/lib/zabbix/mibs:ro"
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+    env_file:
+      - "{{ zbx_variables_local_path }}/.env_db_mysql"
+      - "{{ zbx_variables_local_path }}/.env_srv"
+    secrets:
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_USER
+      - MYSQL_ROOT_PASSWORD
+  #   - client-key.pem
+  #   - client-cert.pem
+  #   - root-ca.pem
+    depends_on:
+      - mysql-server
+    networks:
+      zbx_net_backend:
+        aliases:
+          - zabbix-server
+      zbx_net_frontend:
+    stop_grace_period: 30s
+    sysctls:
+      - net.ipv4.ip_local_port_range=1024 65000
+      - net.ipv4.conf.all.accept_redirects=0
+      - net.ipv4.conf.all.secure_redirects=0
+      - net.ipv4.conf.all.send_redirects=0
 {% if zabbix_enable_healthchecks %}
-  healthcheck:
-    test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
-    interval: 15s
-    timeout: 5s
-    retries: 6
-    start_period: 40s
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
 {% endif %}
-  labels:
-    com.zabbix.description: "Zabbix server with MySQL database support"
-    com.zabbix.company: "Zabbix LLC"
-    com.zabbix.component: "zabbix-server"
-    com.zabbix.dbtype: "mysql"
-    com.zabbix.os: "{{ zabbix_image_flavor }}"
+    labels:
+      com.zabbix.description: "Zabbix server with MySQL database support"
+      com.zabbix.company: "Zabbix LLC"
+      com.zabbix.component: "zabbix-server"
+      com.zabbix.dbtype: "mysql"
+      com.zabbix.os: "{{ zabbix_image_flavor }}"
 
- zabbix-web-nginx-mysql:
+  zabbix-web-nginx-mysql:
 {% if (zabbix_web_server_image is defined) and (zabbix_releases_image is defined)%}
-  image: zabbix/{{ zabbix_web_server_image }}:{{ zabbix_releases_image }}
+    image: zabbix/{{ zabbix_web_server_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-web-nginx-mysql:{{ zabbix_image_tag }}
+    image: zabbix/zabbix-web-nginx-mysql:{{ zabbix_image_tag }}
 {% endif %}
-  hostname: zabbix-web-nginx
-  container_name: zabbix-web-nginx
-  ports:
-   - "80:8080"
-   - "443:8443"
-  volumes:
-   - /etc/localtime:/etc/localtime:ro
-   - /etc/timezone:/etc/timezone:ro
-   - "{{ zbx_volumes_local_path }}/etc/ssl/nginx:/etc/ssl/nginx:ro"
-   - "{{ zbx_volumes_local_path }}/var/modules/:/usr/share/zabbix/modules/:ro"
-  deploy:
-   resources:
-    limits:
-      cpus: '0.70'
-      memory: 512M
-  env_file:
-   - "{{ zbx_variables_local_path }}/.env_db_mysql"
-   - "{{ zbx_variables_local_path }}/.env_web"
-  secrets:
-   - MYSQL_USER
-   - MYSQL_PASSWORD
-#   - client-key.pem
-#   - client-cert.pem
-#   - root-ca.pem
-  depends_on:
-   - mysql-server
-   - zabbix-server
-  healthcheck:
-   test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
-   interval: 10s
-   timeout: 5s
-   retries: 3
-   start_period: 30s
-  networks:
-   zbx_net_backend:
-    aliases:
-     - zabbix-web-nginx
-   zbx_net_frontend:
-  stop_grace_period: 10s
+    hostname: zabbix-web-nginx
+    container_name: zabbix-web-nginx
+    ports:
+      - "80:8080"
+      - "443:8443"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ zbx_volumes_local_path }}/etc/ssl/nginx:/etc/ssl/nginx:ro"
+      - "{{ zbx_volumes_local_path }}/var/modules/:/usr/share/zabbix/modules/:ro"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.70'
+          memory: 512M
+    env_file:
+      - "{{ zbx_variables_local_path }}/.env_db_mysql"
+      - "{{ zbx_variables_local_path }}/.env_web"
+    secrets:
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+    #   - client-key.pem
+    #   - client-cert.pem
+    #   - root-ca.pem
+    depends_on:
+      - mysql-server
+      - zabbix-server
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      zbx_net_backend:
+        aliases:
+        - zabbix-web-nginx
+      zbx_net_frontend:
+    stop_grace_period: 10s
 {% if zabbix_enable_healthchecks %}
-  healthcheck:
-    test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
-    interval: 15s
-    timeout: 5s
-    retries: 6
-    start_period: 40s
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
 {% endif %}
-  sysctls:
-   - net.core.somaxconn=65535
-  labels:
-   com.zabbix.description: "Zabbix frontend on Nginx web-server with MySQL database support"
-   com.zabbix.company: "Zabbix LLC"
-   com.zabbix.component: "zabbix-frontend"
-   com.zabbix.webserver: "nginx"
-   com.zabbix.dbtype: "mysql"
-   com.zabbix.os: "{{ zabbix_image_flavor }}"
+    sysctls:
+      - net.core.somaxconn=65535
+    labels:
+      com.zabbix.description: "Zabbix frontend on Nginx web-server with MySQL database support"
+      com.zabbix.company: "Zabbix LLC"
+      com.zabbix.component: "zabbix-frontend"
+      com.zabbix.webserver: "nginx"
+      com.zabbix.dbtype: "mysql"
+      com.zabbix.os: "{{ zabbix_image_flavor }}"
 
- zabbix-agent:
+  zabbix-agent:
 {% if (zabbix_agent_image is defined) and (zabbix_releases_image is defined)%}
-  image: zabbix/{{ zabbix_agent_image }}:{{ zabbix_releases_image }}
+    image: zabbix/{{ zabbix_agent_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-agent2:{{ zabbix_image_tag }}
+    image: zabbix/zabbix-agent2:{{ zabbix_image_tag }}
 {% endif %}
-  user: 0:0
-  hostname: zabbix-agent
-  container_name: zabbix-agent
-  volumes:
-   - /etc/localtime:/etc/localtime:ro
-   - /etc/timezone:/etc/timezone:ro
-   - "{{ zbx_volumes_local_path }}/etc/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro"
-   - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
-   - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
-   - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
-   - /proc:/proc
-   - /sys:/sys
-   - /dev:/dev:ro
-   - /sys/fs/cgroup:/sys/fs/cgroup:ro
-   - /:/rootfs:ro
-   - /var/run/docker.sock:/var/run/docker.sock:ro
-  restart: unless-stopped
-  env_file:
-   - "{{ zbx_variables_local_path }}/.env_agent"
-  privileged: {{ 'true' if zabbix_agent_privileged | bool else 'false' }}
+    user: 0:0
+    hostname: zabbix-agent
+    container_name: zabbix-agent
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ zbx_volumes_local_path }}/etc/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro"
+      - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
+      - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
+      - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
+      - /proc:/proc
+      - /sys:/sys
+      - /dev:/dev:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    env_file:
+      - "{{ zbx_variables_local_path }}/.env_agent"
+    privileged: {{ 'true' if zabbix_agent_privileged | bool else 'false' }}
 {% if zabbix_agent_pid_host | bool %}
-  pid: host
+    pid: host
 {% endif %}
 {% if zabbix_agent_network_mode_host | bool %}
-  network_mode: host
+    network_mode: host
 {% endif %}
 {% if zabbix_agent_cap_add | length > 0 %}
-  cap_add:
+    cap_add:
 {% for cap in zabbix_agent_cap_add %}
-    - {{ cap }}
+      - {{ cap }}
 {% endfor %}
 {% endif %}
-  stop_grace_period: 5s
+    stop_grace_period: 5s
 {% if zabbix_enable_healthchecks %}
-  healthcheck:
-    test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10050' || exit 1"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
-    start_period: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10050' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 {% endif %}
-  labels:
-    com.zabbix.description: "Zabbix agent"
-    com.zabbix.company: "Zabbix LLC"
-    com.zabbix.component: "zabbix-agentd"
-    com.zabbix.os: "alpine"
+    labels:
+      com.zabbix.description: "Zabbix agent"
+      com.zabbix.company: "Zabbix LLC"
+      com.zabbix.component: "zabbix-agentd"
+      com.zabbix.os: "alpine"
 
- zabbix-web-service:
+  zabbix-web-service:
 {% if (zabbix_web_service_image is defined) and (zabbix_releases_image is defined)%}
-  image: zabbix/{{ zabbix_web_service_image }}:{{ zabbix_releases_image }}
+    image: zabbix/{{ zabbix_web_service_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-web-service:{{ zabbix_image_tag }}
+    image: zabbix/zabbix-web-service:{{ zabbix_image_tag }}
 {% endif %}
-  hostname: zabbix-web-service
-  container_name: zabbix-web-service
-  ports:
-   - "10053:10053"
-  volumes:
-   - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
-  cap_add:
-   - SYS_ADMIN
-  deploy:
-   resources:
-    limits:
-      cpus: '0.5'
-      memory: 512M
-  env_file:
-   - "{{ zbx_variables_local_path }}/.env_web_service"
-  networks:
-   zbx_net_backend:
-    aliases:
-     - zabbix-web-service
-  stop_grace_period: 5s
-  labels:
-   com.zabbix.description: "Zabbix web service"
-   com.zabbix.company: "Zabbix LLC"
-   com.zabbix.component: "web-service"
-  com.zabbix.os: "{{ zabbix_image_flavor }}"
+    hostname: zabbix-web-service
+    container_name: zabbix-web-service
+    ports:
+      - "10053:10053"
+    volumes:
+      - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
+    cap_add:
+      - SYS_ADMIN
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    env_file:
+      - "{{ zbx_variables_local_path }}/.env_web_service"
+    networks:
+      zbx_net_backend:
+        aliases:
+        - zabbix-web-service
+    stop_grace_period: 5s
+    labels:
+      com.zabbix.description: "Zabbix web service"
+      com.zabbix.company: "Zabbix LLC"
+      com.zabbix.component: "web-service"
+      com.zabbix.os: "{{ zabbix_image_flavor }}"
 
- mysql-server:
+  mysql-server:
 {% if mysql_server_image is defined %}
-  image: {{ mysql_server_image }}
+    image: {{ mysql_server_image }}
 {% else %}
-  image: mysql:8.0-oracle
+    image: mysql:8.0-oracle
 {% endif %}
-  hostname: zabbix-mysql-server
-  container_name: zabbix-mysql-server
-  command:
-   - mysqld
-   - --character-set-server=utf8mb4
-   - --collation-server=utf8mb4_bin
-   - --skip-character-set-client-handshake
-   - --default-authentication-plugin=mysql_native_password
-#   - --require-secure-transport
-#   - --ssl-ca=/run/secrets/root-ca.pem
-#   - --ssl-cert=/run/secrets/server-cert.pem
-#   - --ssl-key=/run/secrets/server-key.pem
-  volumes:
-   - "{{ zbx_volumes_local_path }}/var/mysql:/var/lib/mysql:rw"
-  env_file:
-   - "{{ zbx_variables_local_path }}/.env_db_mysql"
-  secrets:
-   - MYSQL_USER
-   - MYSQL_PASSWORD
-   - MYSQL_ROOT_PASSWORD
-#   - server-key.pem
-#   - server-cert.pem
-#   - root-ca.pem
-  stop_grace_period: 1m
-  networks:
-   zbx_net_backend:
-    aliases:
-     - mysql-server
+    hostname: zabbix-mysql-server
+    container_name: zabbix-mysql-server
+    command:
+      - mysqld
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_bin
+      - --skip-character-set-client-handshake
+      - --default-authentication-plugin=mysql_native_password
+    #   - --require-secure-transport
+    #   - --ssl-ca=/run/secrets/root-ca.pem
+    #   - --ssl-cert=/run/secrets/server-cert.pem
+    #   - --ssl-key=/run/secrets/server-key.pem
+    volumes:
+      - "{{ zbx_volumes_local_path }}/var/mysql:/var/lib/mysql:rw"
+    env_file:
+      - "{{ zbx_variables_local_path }}/.env_db_mysql"
+    secrets:
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD
+    #   - server-key.pem
+    #   - server-cert.pem
+    #   - root-ca.pem
+    stop_grace_period: 1m
+    networks:
+      zbx_net_backend:
+        aliases:
+        - mysql-server
 
- db_data_mysql:
-  image: busybox
-  hostname: zabbix-busybox
-  container_name: zabbix-busybox
-  volumes:
-   - "{{ zbx_volumes_local_path }}/var/mysql:/var/lib/mysql:rw"
+  db_data_mysql:
+    image: busybox
+    hostname: zabbix-busybox
+    container_name: zabbix-busybox
+    volumes:
+      - "{{ zbx_volumes_local_path }}/var/mysql:/var/lib/mysql:rw"
 
 # elasticsearch:
 #  image: elasticsearch
@@ -275,7 +275,7 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: {{ zbx_net_frontend_subnet }}
+        - subnet: {{ zbx_net_frontend_subnet }}
 
   zbx_net_backend:
     driver: bridge
@@ -285,7 +285,7 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: {{ zbx_net_backend_subnet }}
+        - subnet: {{ zbx_net_backend_subnet }}
 
 # zabbix-secrets
 secrets:

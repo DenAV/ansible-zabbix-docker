@@ -1,55 +1,55 @@
 version: '3.9'
 services:
 # zabbix-agent 
- zabbix-agent:
+  zabbix-agent:
 {% if (zabbix_agent_image is defined) and (zabbix_releases_image is defined)%}
-  image: zabbix/{{ zabbix_agent_image }}:{{ zabbix_releases_image }}
+    image: zabbix/{{ zabbix_agent_image }}:{{ zabbix_releases_image }}
 {% else %}
-  image: zabbix/zabbix-agent2:{{ zabbix_image_tag }}
+    image: zabbix/zabbix-agent2:{{ zabbix_image_tag }}
 {% endif %}
-  user: 0:0
-  hostname: zabbix-agent
-  container_name: zabbix-agent
-  volumes:
-   - /etc/localtime:/etc/localtime:ro
-   - /etc/timezone:/etc/timezone:ro
-   - "{{ zbx_volumes_local_path }}/etc/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro"
-   - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
-   - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
-   - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
-   - /proc:/proc
-   - /sys:/sys
-   - /dev:/dev:ro
-   - /sys/fs/cgroup:/sys/fs/cgroup:ro
-   - /:/rootfs:ro
-   - /var/run/docker.sock:/var/run/docker.sock:ro
-  restart: unless-stopped
-  env_file:
-   - "{{ zbx_variables_local_path }}/.env_agent"
-  privileged: {{ 'true' if zabbix_agent_privileged | bool else 'false' }}
+    user: 0:0
+    hostname: zabbix-agent
+    container_name: zabbix-agent
+    volumes:
+    - /etc/localtime:/etc/localtime:ro
+    - /etc/timezone:/etc/timezone:ro
+    - "{{ zbx_volumes_local_path }}/etc/zabbix_agentd.d:/etc/zabbix/zabbix_agentd.d:ro"
+    - "{{ zbx_volumes_local_path }}/var/modules:/var/lib/zabbix/modules:ro"
+    - "{{ zbx_volumes_local_path }}/var/enc:/var/lib/zabbix/enc:ro"
+    - "{{ zbx_volumes_local_path }}/var/ssh_keys:/var/lib/zabbix/ssh_keys:ro"
+    - /proc:/proc
+    - /sys:/sys
+    - /dev:/dev:ro
+    - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    - /:/rootfs:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    env_file:
+    - "{{ zbx_variables_local_path }}/.env_agent"
+    privileged: {{ 'true' if zabbix_agent_privileged | bool else 'false' }}
 {% if zabbix_agent_pid_host | bool %}
-  pid: host
+    pid: host
 {% endif %}
 {% if zabbix_agent_network_mode_host | bool %}
-  network_mode: host
+    network_mode: host
 {% endif %}
 {% if zabbix_agent_cap_add | length > 0 %}
-  cap_add:
+    cap_add:
 {% for cap in zabbix_agent_cap_add %}
-    - {{ cap }}
+      - {{ cap }}
 {% endfor %}
 {% endif %}
-  stop_grace_period: 5s
+    stop_grace_period: 5s
 {% if zabbix_enable_healthchecks %}
-  healthcheck:
-    test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10050' || exit 1"]
-    interval: 10s
-    timeout: 5s
-    retries: 5
-    start_period: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/10050' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 {% endif %}
-  labels:
-    com.zabbix.description: "Zabbix agent"
-    com.zabbix.company: "Zabbix LLC"
-    com.zabbix.component: "zabbix-agentd"
-    com.zabbix.os: "alpine"
+    labels:
+      com.zabbix.description: "Zabbix agent"
+      com.zabbix.company: "Zabbix LLC"
+      com.zabbix.component: "zabbix-agentd"
+      com.zabbix.os: "alpine"
