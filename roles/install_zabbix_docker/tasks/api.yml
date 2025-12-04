@@ -3,7 +3,8 @@
 
 - name: Install Ansible collections from requirements.yml
   ansible.builtin.command:
-    cmd: ansible-galaxy collection install -r {{ collections_requirements_path }}
+    cmd: "ansible-galaxy collection install -r {{ collections_requirements_path }} --force"
+  when: zabbix_install_requirements | bool
   delegate_to: localhost
   run_once: true
   changed_when: false
