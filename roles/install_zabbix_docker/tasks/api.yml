@@ -5,6 +5,19 @@
     dir: vars
   no_log: True
 
+- name: "API | Ensure pip3 is installed on localhost"
+  package:
+    name: python3-pip
+    state: present
+  register: zabbix_pip3_installed
+  until: zabbix_pip3_installed is succeeded
+  delegate_to: localhost
+  run_once: true
+  become: true
+  when:
+    - zabbix_install_pip_packages | bool
+    - (zabbix_api_create_hostgroup | bool) or (zabbix_api_create_hosts | bool)
+
 - name: "API | Installing the Zabbix-api package on localhost"
   pip:
     name: zabbix-api
