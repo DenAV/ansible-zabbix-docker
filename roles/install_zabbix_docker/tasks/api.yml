@@ -1,6 +1,14 @@
 ---
 # Zabbix API v2 tasks using community.zabbix httpapi plugin
 
+- name: Install Ansible collections from requirements.yml
+  ansible.builtin.command:
+    cmd: ansible-galaxy collection install -r {{ collections_requirements_path }}
+  delegate_to: localhost
+  run_once: true
+  changed_when: false
+  tags: [api]
+
 - name: Load platform-specific variables
   include_vars:
     dir: vars

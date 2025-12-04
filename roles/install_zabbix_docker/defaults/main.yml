@@ -4,7 +4,8 @@
 #
 # 1) Installation & Deployment
 #
-zabbix_install_pip_packages: true
+zabbix_install_requirements: true
+collections_requirements_path: "{{ playbook_dir }}/../requirements.yml" # Collections installation path (used by api tasks)
 zabbix_deployment_mode: 'server_agent'  # one of 'server_agent', 'proxy_agent', 'proxy', 'agent'
 zbx_container_state: 'present'
 
