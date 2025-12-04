@@ -38,13 +38,15 @@
     - check_container is defined
     - (check_container.failed | default(false)) == false
     - zabbix_api_create_hosts | bool
+    - zabbix_api_create_proxy | bool
+    - zabbix_api_create_hostgroup | bool
+    - zabbix_url != ""
 
 - name: Pre-pull Zabbix images for selected mode
   community.docker.docker_image:
     name: "{{ item }}"
     source: pull
-  loop: "{{
-    (
+  loop: "{{ (
       [ 'zabbix/{{ zabbix_server_image }}:{{ zabbix_image_tag }}',
         'zabbix/{{ zabbix_web_server_image }}:{{ zabbix_image_tag }}',
         'zabbix/{{ zabbix_web_service_image }}:{{ zabbix_image_tag }}',
@@ -56,8 +58,7 @@
       ] if zabbix_deployment_mode == 'proxy_agent' else
       [ 'zabbix/{{ zabbix_proxy_image }}:{{ zabbix_image_tag }}' ] if zabbix_deployment_mode == 'proxy' else
       [ 'zabbix/{{ zabbix_agent_image }}:{{ zabbix_image_tag }}' ]
-    )
-  }}"
+    ) }}"
   when:
     - zbx_container_state == 'present'
     - zbx_docker_compose_tmp is defined

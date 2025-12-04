@@ -52,14 +52,24 @@ zbx_proxy_listen_ip: ""          # Optional: set when using host networking
 #
 # 6) API settings
 #
+zabbix_api_url: ""
+zabbix_api_port: 443
+zabbix_api_host: "{{ (zabbix_api_url | regex_search('^https?://([^/:]+)', '\\1')) | default('127.0.0.1') }}"
+zabbix_api_scheme: "{{ (zabbix_api_url | regex_search('^(https?)://', '\\1')) | default('http') }}"
+zabbix_api_use_ssl: "{{ zabbix_api_scheme == 'https' }}"
+zabbix_api_validate_certs: false
+
 zabbix_api_http_password: ""
 zabbix_api_http_user: ""
-zabbix_api_pass: "zabbix"
+zabbix_api_user: ""
+zabbix_api_pass: ""
 zabbix_api_proxy: "{{ zbx_proxy_hostname }}"
 zabbix_api_token: ""  # Prefer token; falls back to user/pass if empty
-zabbix_api_user: "Admin"
+zabbix_validate_certs: false
 zabbix_api_create_hostgroup: true
 zabbix_api_create_hosts: false
+zabbix_api_create_proxy: false
+
 zabbix_api_update_psk: true
 zabbix_create_host: present       # or absent
 zabbix_create_hostgroup: present  # or absent

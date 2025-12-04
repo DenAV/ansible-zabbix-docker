@@ -1,45 +1,30 @@
-# The zabbix-api for automatically creating and or updating hosts
 ---
+# Zabbix API v2 tasks using community.zabbix httpapi plugin
+
 - name: Load platform-specific variables
   include_vars:
     dir: vars
-  no_log: True
+  no_log: true
 
-- name: "API | Ensure pip3 is installed on localhost"
-  package:
-    name: python3-pip
-    state: present
-  register: zabbix_pip3_installed
-  until: zabbix_pip3_installed is succeeded
+- name: API | Derive httpapi connection vars from zabbix_url
+  ansible.builtin.set_fact:
+    ansible_network_os: community.zabbix.zabbix
+    ansible_connection: httpapi
+    ansible_host: "{{ zabbix_api_host }}"
+    ansible_httpapi_port: "{{ zabbix_api_port }}"
+    ansible_httpapi_use_ssl: "{{ zabbix_api_use_ssl }}"
+    ansible_httpapi_validate_certs: "{{ zabbix_api_validate_certs }}"
+    ansible_zabbix_auth_key: "{{ zabbix_api_token }}"
+  when:
+    - (zabbix_api_create_hostgroup | bool) or (zabbix_api_create_hosts | bool) or (zabbix_api_update_psk | bool)
+    - zabbix_api_token != ""
+  become: false
   delegate_to: localhost
   run_once: true
-  become: true
-  when:
-    - zabbix_install_pip_packages | bool
-    - (zabbix_api_create_hostgroup | bool) or (zabbix_api_create_hosts | bool)
+  tags: [api]
 
-- name: "API | Installing the Zabbix-api package on localhost"
-  pip:
-    name: zabbix-api
-    state: present
-    extra_args: --user
-  register: zabbix_api_package_installed
-  until: zabbix_api_package_installed is succeeded
-  delegate_to: localhost
-  run_once: true
-  become: true
-  when:
-    - zabbix_install_pip_packages | bool
-    - (zabbix_api_create_hostgroup | bool) or (zabbix_api_create_hosts | bool)
-
-- name: "API | Create hostgroups"
-  zabbix_group:
-    server_url: "{{ zabbix_url }}"
-    http_login_user: "{{ zabbix_api_http_user | default(omit) }}"
-    http_login_password: "{{ zabbix_api_http_password | default(omit) }}"
-    api_token: "{{ zabbix_api_token | default(omit) }}"
-    login_user: "{{ zabbix_api_user | default(omit) }}"
-    login_password: "{{ zabbix_api_pass | default(omit) }}"
+- name: API | Create hostgroups
+  community.zabbix.zabbix_group:
     host_group: "{{ zabbix_host_groups }}"
     state: "{{ zabbix_create_hostgroup }}"
   when:
@@ -48,8 +33,26 @@
   until: zabbix_api_hostgroup_created is succeeded
   delegate_to: localhost
   become: false
-  tags:
-    - api
+  run_once: true
+  tags: [api]
+
+- name: API | Create or update a proxy with proxy type active
+  community.zabbix.zabbix_proxy:
+    proxy_name: "{{ zbx_proxy_hostname }}"
+    description: "Zabbix Proxy Docker deployed"
+    operating_mode: active
+    state: present
+    allowed_addresses: "{{ zbx_proxy_source_ip if zbx_proxy_source_ip != '' else omit }}"
+  when:
+    - zabbix_api_create_proxy | bool
+    - zabbix_api_proxy != ""
+    - zabbix_deployment_mode in ['proxy_agent','proxy']
+  register: zabbix_api_proxy_created
+  until: zabbix_api_proxy_created is succeeded
+  delegate_to: localhost
+  become: false
+  run_once: true
+  tags: [api]
 
 - name: Wait for Zabbix server port (10051) on localhost
   wait_for:
@@ -59,6 +62,7 @@
     timeout: 120
   when:
     - zabbix_deployment_mode in ['server_agent']
+  run_once: true
 
 - name: Wait for Zabbix proxy port (10051) on localhost
   wait_for:
@@ -68,15 +72,10 @@
     timeout: 120
   when:
     - zabbix_deployment_mode in ['proxy_agent','proxy']
+  run_once: true
 
-- name: "API | Create a new host or update an existing host's info"
-  zabbix_host:
-    server_url: "{{ zabbix_url }}"
-    http_login_user: "{{ zabbix_api_http_user | default(omit) }}"
-    http_login_password: "{{ zabbix_api_http_password | default(omit) }}"
-    api_token: "{{ zabbix_api_token | default(omit) }}"
-    login_user: "{{ zabbix_api_user | default(omit) }}"
-    login_password: "{{ zabbix_api_pass | default(omit) }}"
+- name: API | Create or update host
+  community.zabbix.zabbix_host:
     host_name: "{{ zabbix_agent_hostname }}"
     host_groups: "{{ zabbix_host_groups }}"
     link_templates: "{{ zabbix_link_templates }}"
@@ -88,12 +87,8 @@
     visible_name: "{{ zabbix_visible_hostname | default(zabbix_agent_hostname) }}"
     tls_psk: "{{ zabbix_agent_tlspsk_secret | default(omit) }}"
     tls_psk_identity: "{{ zabbix_agent_tlspskidentity | default(omit) }}"
-    tls_issuer: "{{ zabbix_agent_tlsservercertissuer | default(omit) }}"
-    tls_subject: "{{ zabbix_agent_tlsservercertsubject | default(omit) }}"
-    tls_accept: "{{ zabbix_agent_tls_config[zabbix_agent_tlsaccept if zabbix_agent_tlsaccept else 'unencrypted'] }}"
-    tls_connect: "{{ zabbix_agent_tls_config[zabbix_agent_tlsconnect if zabbix_agent_tlsconnect else 'unencrypted'] }}"
-    validate_certs: "{{ zabbix_validate_certs | default(omit) }}"
-    description: "{{ zabbix_agent_description | default(omit) }}"
+    tls_accept: "{{ (zabbix_agent_tls_config[zabbix_agent_tlsaccept if zabbix_agent_tlsaccept else 'unencrypted']) | int }}"
+    tls_connect: "{{ (zabbix_agent_tls_config[zabbix_agent_tlsconnect if zabbix_agent_tlsconnect else 'unencrypted']) | int }}"
     inventory_zabbix: "{{ zabbix_agent_inventory_zabbix | default({}) }}"
   notify: restart docker zabbix agent
   when:
@@ -103,23 +98,17 @@
   delegate_to: localhost
   become: false
   changed_when: false
-  tags:
-    - api
+  tags: [api]
 
-# Update an existing host's TLS settings
-- name: Update an existing host's TLS settings
-  zabbix_host:
-    server_url: "{{ zabbix_url }}"
-    api_token: "{{ zabbix_api_token | default(omit) }}"
-    login_user: "{{ zabbix_api_user | default(omit) }}"
-    login_password: "{{ zabbix_api_pass | default(omit) }}"
+- name: API | Update host TLS settings
+  community.zabbix.zabbix_host:
     host_name: "{{ zabbix_agent_hostname }}"
     visible_name: "{{ zabbix_visible_hostname | default(zabbix_agent_hostname) }}"
     host_groups: "{{ zabbix_host_groups }}"
     tls_psk: "{{ zabbix_agent_tlspsk_secret | default(omit) }}"
     tls_psk_identity: "{{ zabbix_agent_tlspskidentity | default(omit) }}"
-    tls_accept: "{{ zabbix_agent_tls_config[zabbix_agent_tlsaccept if zabbix_agent_tlsaccept else 'unencrypted'] }}"
-    tls_connect: "{{ zabbix_agent_tls_config[zabbix_agent_tlsconnect if zabbix_agent_tlsconnect else 'unencrypted'] }}"
+    tls_accept: "{{ (zabbix_agent_tls_config[zabbix_agent_tlsaccept if zabbix_agent_tlsaccept else 'unencrypted']) | int }}"
+    tls_connect: "{{ (zabbix_agent_tls_config[zabbix_agent_tlsconnect if zabbix_agent_tlsconnect else 'unencrypted']) | int }}"
   notify: restart docker zabbix agent
   register: zabbix_api_host_update
   until: zabbix_api_host_update is succeeded
@@ -127,10 +116,5 @@
   become: false
   when:
     - zabbix_api_update_psk | bool
-  tags:
-    - api
+  tags: [api]
 
-- name: "Debug"
-  debug:
-    var: zabbix_api_host_update
-    verbosity: 2
