@@ -31,6 +31,9 @@ Security & networking:
 - `zabbix_agent_pid_host`: default `false`; disable host PID namespace by default.
 - `zabbix_agent_network_mode_host`: default `false`; avoid host networking by default.
 - `zabbix_agent_cap_add`: list of extra capabilities to grant to agent (optional).
+- `zbx_agent_source_ip`, `zbx_agent_listen_ip`: optional IPs to use when agent runs with host networking; if unset but `zabbix_agent_network_mode_host: true`, defaults to the host's `ansible_default_ipv4.address`.
+- `zabbix_proxy_network_mode_host`: default `false`; host networking toggle for proxy.
+- `zbx_proxy_source_ip`, `zbx_proxy_listen_ip`: optional IPs to use when proxy runs with host networking; if unset but `zabbix_proxy_network_mode_host: true`, defaults to the host's `ansible_default_ipv4.address`.
 - `zbx_net_frontend_subnet`: default `172.30.238.0/24`.
 - `zbx_net_backend_subnet`: default `172.30.239.0/24`.
 - `zabbix_enable_healthchecks`: default `true`; adds simple healthchecks to agent and can be extended to other services.

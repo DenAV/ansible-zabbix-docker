@@ -1,112 +1,115 @@
 ---
 # defaults file for install_zabbix_docker
 
-# Install pip packages for Zabbix API interaction
+#
+# 1) Installation & Deployment
+#
 zabbix_install_pip_packages: true
+zabbix_deployment_mode: 'server_agent'  # one of 'server_agent', 'proxy_agent', 'proxy', 'agent'
+zbx_container_state: 'present'
 
-# Images
-# Zabbix versioning
+#
+# 2) Images
+#
 zabbix_version: '7.4.5'
-# image flavor: 'alpine' or 'ubuntu'
-zabbix_image_flavor: 'alpine'
+zabbix_image_flavor: 'alpine'            # 'alpine' or 'ubuntu'
 zabbix_image_tag: "{{ zabbix_image_flavor }}-{{ zabbix_version }}"
-
-# Backward-compat variable (used by templates); prefer zabbix_image_tag
-zabbix_releases_image: "{{ zabbix_image_tag }}"
-
+zabbix_releases_image: "{{ zabbix_image_tag }}"  # backward-compat; prefer zabbix_image_tag
 zabbix_server_image: 'zabbix-server-mysql'
+zabbix_agent_image: 'zabbix-agent2'
 zabbix_proxy_image: 'zabbix-proxy-sqlite3'
 zabbix_web_server_image: 'zabbix-web-nginx-mysql'
 zabbix_web_service_image: 'zabbix-web-service'
-zabbix_agent_image: 'zabbix-agent2'
 mysql_server_image: 'mysql:8.0-oracle'
 
-# Deployment mode: one of 'server_agent', 'proxy_agent', 'proxy', 'agent'
-zabbix_deployment_mode: 'server_agent'
+#
+# 3) Compose file & networks
+#
+zbx_docker_compose_file: "docker-compose.yml"
+zbx_net_backend_subnet: '172.30.239.0/24'
+zbx_net_frontend_subnet: '172.30.238.0/24'
 
-zbx_container_state: 'present'
-
-# for .env_
-zbx_pskfile_secret: '' # auto generated
-
-# for .env_agent
-zbx_agent_server_host: 'zabbix-server'
+#
+# 4) Agent settings (.env_agent)
+#
 zbx_agent_hostname: "{{ ansible_hostname }}"
 zbx_agent_psk_identity: "{{ zbx_agent_hostname }}-identity"
+zbx_agent_server_host: 'zabbix-server'
+zbx_agent_source_ip: ""          # Optional: set when using host networking
+zbx_agent_listen_ip: ""          # Optional: set when using host networking
 
-# for .env_prx
-zbx_proxy_server_host: 'zabbix-server'
+#
+# 5) Proxy settings (.env_prx)
+#
 zbx_proxy_hostname: 'zabbix-proxy'
 zbx_proxy_psk_identity: "{{ zbx_proxy_hostname }}-identity"
+zbx_proxy_server_host: 'zabbix-server'
+zabbix_proxy_network_mode_host: false  # Use host network mode for proxy container
+zbx_proxy_frontend_ip: '172.30.238.2'  # Static IP for proxy on frontend network
+zbx_proxy_source_ip: ""          # Optional: set when using host networking
+zbx_proxy_listen_ip: ""          # Optional: set when using host networking
 
-# for docker-compose
-zbx_docker_compose_file: "docker-compose.yml"
-
-# Zabbix API stuff
-zabbix_vmname: "{{zbx_agent_hostname}}"
-
-# Prefer using an API token when available. If `zabbix_api_token` is not set,
-# the role will fall back to `zabbix_api_user` / `zabbix_api_pass`.
-zabbix_api_token: ""
-zabbix_api_user: "Admin"
-zabbix_api_pass: "zabbix"
-zabbix_api_http_user: ""
+#
+# 6) API settings
+#
 zabbix_api_http_password: ""
-
-zabbix_agent_tlspsk_secret: "{{ zbx_pskfile_secret }}"
-zabbix_agent_tlspskidentity: "{{ zbx_agent_psk_identity }}"
+zabbix_api_http_user: ""
+zabbix_api_pass: "zabbix"
 zabbix_api_proxy: "{{ zbx_proxy_hostname }}"
-
+zabbix_api_token: ""  # Prefer token; falls back to user/pass if empty
+zabbix_api_user: "Admin"
 zabbix_api_create_hostgroup: true
 zabbix_api_create_hosts: false
 zabbix_api_update_psk: true
-
-zabbix_create_hostgroup: present  # or absent
 zabbix_create_host: present       # or absent
-zabbix_update_host: true
+zabbix_create_hostgroup: present  # or absent
 zabbix_host_status: enabled       # or disabled
+zabbix_vmname: "{{zbx_agent_hostname}}"
 
-zabbix_inventory_mode: disabled
-zabbix_useuip: 1
-
+#
+# 7) TLS settings
+#
+zabbix_agent_tls_config:
+  cert: '4'
+  psk: '2'
+  unencrypted: '1'
+zabbix_agent_tlspsk_secret: "{{ zbx_pskfile_secret }}"
+zabbix_agent_tlspskidentity: "{{ zbx_agent_psk_identity }}"
 zabbix_tls_accept: 2    # PSK
 zabbix_tls_connect: 2   # PSK
+zbx_pskfile_secret: ''  # auto generated
 
-# Soll für Server anpassen!
-# die Variablen bekommen aus ./pl_vars/role_zabbix-agent_install.yml
+#
+# 8) Inventory & templates
+#
+zabbix_inventory_mode: disabled
+zabbix_link_templates: []
+#  - "Linux by Zabbix agent"
+
 zabbix_proxy: ""
 zabbix_host_groups: []
 #  - "Cloud-VMs"
 
-zabbix_link_templates: []
-#  - "Linux by Zabbix agent"
-
+# Interface data compiled for API host creation
 zabbix_agent_ip: "{{ansible_ip_addresses | ansible.utils.ipv4 | join(',')}}"
 zabbix_agent_interfaces:
-  - type: 1
-    main: 1
-    useip: "{{ zabbix_useuip }}"
+  - dns: "{{ ansible_fqdn }}"
     ip: "{{ zabbix_agent_ip }}"
-    dns: "{{ ansible_fqdn }}"
+    main: 1
     port: "{{ zabbix_agent_listenport }}"
+    type: 1
+    useip: "{{ zabbix_useuip }}"
+zabbix_useuip: 1
 
-zabbix_agent_tls_config:
-  unencrypted: '1'
-  psk: '2'
-  cert: '4'
-
-# Security & networking
+#
+# 9) Security & container runtime
+#
+zabbix_agent_cap_add: []            # Additional capabilities for agent container
+zabbix_agent_network_mode_host: false  # Use host network mode for agent container
+zabbix_agent_pid_host: false        # Use host PID namespace for agent container
 zabbix_agent_privileged: false
-zabbix_agent_pid_host: false # Use host PID namespace for agent container
-zabbix_agent_network_mode_host: false # Use host network mode for agent container
-zabbix_agent_cap_add: [] # List of additional capabilities to add to the agent container
 
-zabbix_proxy_network_mode_host: false # Use host network mode for proxy container
-zbx_proxy_frontend_ip: '172.30.238.2'
-
-# Compose networks (configurable to avoid collisions)
-zbx_net_frontend_subnet: '172.30.238.0/24'
-zbx_net_backend_subnet: '172.30.239.0/24'
-
-# Healthchecks toggle
+#
+# 10) Healthchecks
+#
 zabbix_enable_healthchecks: true

@@ -13,13 +13,16 @@
     zabbix_image_flavor: "alpine"
     zabbix_deployment_mode: "proxy_agent"
 
+    ## AGENT settings
     # Agent connects to the local proxy service
       # Note: zbx_agent_server_host controls where the Zabbix Agent sends its active connections.
       # - For server_agent: set to the Server service (typically 'zabbix-server')
       # - For proxy_agent: set to the Proxy service (typically 'zabbix-proxy')
       # - For agent-only: set to a reachable address (IP/FQDN) of your Server or Proxy
       # In this Proxy+Agent playbook, the agent should use the local proxy.
-    zbx_agent_server_host: "zabbix-proxy"
+    # If both agent and proxy use host networking, point agent to local host
+    # hostname; otherwise use the proxy's compose service/hostname.
+    zbx_agent_server_host: "{{ (zabbix_agent_network_mode_host and zabbix_proxy_network_mode_host) | ternary(ansible_hostname, zbx_proxy_hostname) }}"
     # Agent hostname as shown in Zabbix
       # Note: zbx_agent_hostname is the host name as it will appear in Zabbix.
       # Use a stable, unique identifier (e.g., OS hostname or FQDN).
@@ -27,11 +30,13 @@
       # ("<hostname>-identity") for secure agent-server/proxy communication.
     zbx_agent_hostname: "agent-local"
 
+    ## PROXY settings
     # Proxy sends data to the server; use compose service or external IP/FQDN
       # Note: zbx_proxy_server_host is where the proxy sends data (the Zabbix Server).
       # Use the server service name within Compose (typically 'zabbix-server')
       # or an IP/FQDN if the server is external.
     zbx_proxy_server_host: "zabbix-server"
+
     # Proxy identity shown in Zabbix (also used for PSK identity defaults)
       # Note: zbx_proxy_hostname is the proxy's identity shown in Zabbix and
       # used for PSK identity defaults ("<proxy-hostname>-identity").
