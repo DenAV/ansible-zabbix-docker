@@ -1,0 +1,23 @@
+---
+# Example playbook to create a Zabbix host using API
+
+- name: Create Zabbix host via API
+  hosts: localhost
+  gather_facts: false
+  vars:
+    zabbix_url: "https://zabbix.example.com"
+    zabbix_api_user: "Admin"
+    zabbix_api_pass: "zabbix"
+    zabbix_host_groups:
+      - "Linux servers"
+    zabbix_create_host: present
+    zabbix_vmname: "example-host"
+    zabbix_host_status: enabled
+    zabbix_api_create_hostgroup: true
+    zabbix_api_create_hosts: true
+
+  tasks:
+    - name: Include Zabbix API tasks
+      include_role:
+        name: install_zabbix_docker
+        tasks_from: api.yml
