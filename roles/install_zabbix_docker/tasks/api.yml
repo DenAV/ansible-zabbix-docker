@@ -19,12 +19,12 @@
   ansible.builtin.set_fact:
     ansible_network_os: community.zabbix.zabbix
     ansible_connection: httpapi
-    ansible_host: "{{ zabbix_api_host }}"
     ansible_httpapi_port: "{{ zabbix_api_port }}"
     ansible_httpapi_use_ssl: "{{ zabbix_api_use_ssl }}"
     ansible_httpapi_validate_certs: "{{ zabbix_api_validate_certs }}"
-    ansible_httpapi_path: "{{ zabbix_api_path }}"
+    ansible_zabbix_url_path: "{{ zabbix_api_path }}"
     ansible_zabbix_auth_key: "{{ zabbix_api_token }}"
+    ansible_host: "{{ zabbix_api_host }}"
   when:
     - (zabbix_api_create_hostgroup | bool) or (zabbix_api_create_hosts | bool) or (zabbix_api_update_psk | bool)
     - zabbix_api_token != ""
