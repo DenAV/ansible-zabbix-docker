@@ -27,7 +27,3 @@ zabbix_agent_userparams: False
 zabbix_agent_tlsconnect: 'psk'
 # Option: TLSAccept
 zabbix_agent_tlsaccept: 'psk'
-
-# Option: TLSPSKFile
-#zabbix_agent_tlspskfile: 'c:\zabbix\conf\secret.psk'
-#zabbix_agent_tlspskidentity_file: 'c:\zabbix\conf\identity.psk'

@@ -53,7 +53,7 @@ Tip: Use `sudo ansible-playbook ...` if you prefer not to provide `-K`.
 	- `zabbix_version` (default `7.4.5`), `zabbix_image_flavor` (`alpine`|`ubuntu`), `zabbix_deployment_mode` (`server_agent`|`proxy_agent`|`proxy`|`agent`)
 	- Security: `zabbix_agent_privileged` (default false), `zabbix_agent_cap_add`, `zabbix_agent_network_mode_host`
 	- Networks: `zbx_net_frontend_subnet`, `zbx_net_backend_subnet`
-	- API & PSK: `zabbix_api_create_hosts`, `zabbix_api_update_psk`, PSK auto-generation
+	- API & PSK: `zabbix_api_create_hosts` PSK auto-generation
 
 To override variables, pass `-e` or create inventory/group_vars. Example:
 
@@ -84,7 +84,7 @@ The role renders `.env_*` files and a `docker-compose.yml` in a local project pa
 
 - Ensure Docker + Compose v2 is present (`docker compose version`).
 - If images fail to pull, verify `zabbix_version` and `zabbix_image_flavor` exist on Docker Hub.
-- For API automation, confirm `zabbix_url`, credentials, and network reachability.
+- For API automation, confirm `zabbix_api_url`, credentials, and network reachability.
 - For a full checklist and ready-to-run commands, see [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).
 
 ## Next Steps

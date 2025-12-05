@@ -60,7 +60,7 @@ Use this checklist to validate Docker/Compose setup, containers, networking, and
 - Wait for server/proxy ports before API calls:
   - Server: `timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' && echo Server OK || echo WAIT'`
   - Proxy: `timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' && echo Proxy OK || echo WAIT'`
-- Check credentials/vault values (`zabbix_url`, `zabbix_api_user`, `zabbix_api_pass`).
+- Check credentials/vault values (`zabbix_api_url`, `zabbix_api_user`, `zabbix_api_pass`).
 
 ## Regenerate PSK
 - Path on host: `/zabbix/zbx_env/var/enc/secret.psk`
@@ -78,4 +78,3 @@ Use this checklist to validate Docker/Compose setup, containers, networking, and
   - `sudo docker inspect zabbix-agent > /tmp/agent.inspect.json`
   - `sudo docker inspect zabbix-proxy > /tmp/proxy.inspect.json`
 - Share offending lines (first ~60) from `/zabbix/docker-compose.yml` when reporting YAML errors.
-

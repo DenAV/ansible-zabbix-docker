@@ -36,8 +36,8 @@ zbx_net_frontend_subnet: '172.30.238.0/24'
 zbx_agent_hostname: "{{ ansible_hostname }}"
 zbx_agent_psk_identity: "{{ zbx_agent_hostname }}-identity"
 zbx_agent_server_host: 'zabbix-server'
-zbx_agent_source_ip: ""          # Optional: set when using host networking
-zbx_agent_listen_ip: ""          # Optional: set when using host networking
+zbx_agent_source_ip: "{{ ansible_default_ipv4.address }}"  # Optional: set when using host networking
+zbx_agent_listen_ip: "{{ ansible_default_ipv4.address }}"  # Optional: set when using host networking
 
 #
 # 5) Proxy settings (.env_prx)
@@ -47,8 +47,8 @@ zbx_proxy_psk_identity: "{{ zbx_proxy_hostname }}-identity"
 zbx_proxy_server_host: 'zabbix-server'
 zabbix_proxy_network_mode_host: false  # Use host network mode for proxy container
 zbx_proxy_frontend_ip: '172.30.238.2'  # Static IP for proxy on frontend network
-zbx_proxy_source_ip: ""          # Optional: set when using host networking
-zbx_proxy_listen_ip: ""          # Optional: set when using host networking
+zbx_proxy_source_ip: "{{ ansible_default_ipv4.address }}" # Optional: set when using host networking
+zbx_proxy_listen_ip: "{{ ansible_default_ipv4.address }}" # Optional: set when using host networking
 
 #
 # 6) API settings
@@ -72,12 +72,12 @@ zabbix_api_create_hostgroup: true
 zabbix_api_create_hosts: false
 zabbix_api_create_proxy: false
 
-zabbix_api_update_psk: true
 zabbix_create_host: present       # or absent
 zabbix_create_hostgroup: present  # or absent
 zabbix_host_status: enabled       # or disabled
+zabbix_update_host: true
 zabbix_vmname: "{{zbx_agent_hostname}}"
-
+zabbix_visible_hostname: "{{zbx_agent_hostname}}"
 #
 # 7) TLS settings
 #
@@ -85,6 +85,7 @@ zabbix_agent_tls_config:
   cert: '4'
   psk: '2'
   unencrypted: '1'
+
 zabbix_agent_tlspsk_secret: "{{ zbx_pskfile_secret }}"
 zabbix_agent_tlspskidentity: "{{ zbx_agent_psk_identity }}"
 zabbix_tls_accept: 2    # PSK
@@ -103,15 +104,15 @@ zabbix_host_groups: []
 #  - "Cloud-VMs"
 
 # Interface data compiled for API host creation
-zabbix_agent_ip: "{{ansible_ip_addresses | ansible.utils.ipv4 | join(',')}}"
+zabbix_useuip: 1
 zabbix_agent_interfaces:
   - dns: "{{ ansible_fqdn }}"
-    ip: "{{ zabbix_agent_ip }}"
+    ip: "{{ zbx_agent_source_ip }}"
     main: 1
     port: "{{ zabbix_agent_listenport }}"
     type: 1
     useip: "{{ zabbix_useuip }}"
-zabbix_useuip: 1
+
 
 #
 # 9) Security & container runtime

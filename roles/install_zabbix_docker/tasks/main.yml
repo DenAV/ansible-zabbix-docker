@@ -32,15 +32,14 @@
   register: check_container
   when: check_path_docker_compose_file.stat.exists
 
-- name: preparation docker-compose file
+- name: Create Zabbix host via API
   include_tasks: api.yml
   when: 
     - check_container is defined
     - (check_container.failed | default(false)) == false
-    - zabbix_api_create_hosts | bool
-    - zabbix_api_create_proxy | bool
-    - zabbix_api_create_hostgroup | bool
-    - zabbix_url != ""
+    - (zabbix_api_create_hosts | bool) or (zabbix_api_create_proxy | bool) or (zabbix_api_create_hostgroup | bool)
+    - zabbix_api_url | length > 0
+    - zabbix_api_token | length > 0
 
 - name: Pre-pull Zabbix images for selected mode
   community.docker.docker_image:

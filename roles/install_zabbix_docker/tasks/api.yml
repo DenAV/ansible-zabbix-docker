@@ -3,7 +3,7 @@
 
 - name: Install Ansible collections from requirements.yml
   ansible.builtin.command:
-    cmd: "ansible-galaxy collection install -r {{ collections_requirements_path }} --force"
+    cmd: "ansible-galaxy collection install -r {{ collections_requirements_path }}"
   when: zabbix_install_requirements | bool
   delegate_to: localhost
   run_once: true
@@ -15,7 +15,7 @@
     dir: vars
   no_log: true
 
-- name: API | Derive httpapi connection vars from zabbix_url
+- name: API | Derive httpapi connection vars from zabbix_api_url
   ansible.builtin.set_fact:
     ansible_network_os: community.zabbix.zabbix
     ansible_connection: httpapi
@@ -26,8 +26,8 @@
     ansible_zabbix_auth_key: "{{ zabbix_api_token }}"
     ansible_host: "{{ zabbix_api_host }}"
   when:
-    - (zabbix_api_create_hostgroup | bool) or (zabbix_api_create_hosts | bool) or (zabbix_api_update_psk | bool)
-    - zabbix_api_token != ""
+    - zabbix_api_host | length > 0
+    - zabbix_api_token | length > 0
   become: false
   delegate_to: localhost
   run_once: true
@@ -53,9 +53,13 @@
     operating_mode: active
     state: present
     allowed_addresses: "{{ zbx_proxy_source_ip if zbx_proxy_source_ip != '' else omit }}"
+    tls_accept: "PSK"
+    tls_connect: "PSK"
+    tls_psk_identity: "{{ zbx_proxy_psk_identity | default(omit) }}"
+    tls_psk: "{{ zbx_pskfile_secret | default(omit) }}"
   when:
     - zabbix_api_create_proxy | bool
-    - zabbix_api_proxy != ""
+    - zabbix_api_proxy | length > 0
     - zabbix_deployment_mode in ['proxy_agent','proxy']
   register: zabbix_api_proxy_created
   until: zabbix_api_proxy_created is succeeded
@@ -66,7 +70,7 @@
 
 - name: Wait for Zabbix server port (10051) on localhost
   wait_for:
-    host: 127.0.0.1
+    host: "{{ zbx_server_source_ip | default('127.0.0.1') }}"
     port: 10051
     delay: 2
     timeout: 120
@@ -76,7 +80,7 @@
 
 - name: Wait for Zabbix proxy port (10051) on localhost
   wait_for:
-    host: 127.0.0.1
+    host: "{{ zbx_proxy_source_ip | default('127.0.0.1') }}"
     port: 10051
     delay: 2
     timeout: 120
@@ -93,6 +97,7 @@
     state: "{{ zabbix_create_host }}"
     force: "{{ zabbix_update_host }}"
     proxy: "{{ zabbix_api_proxy }}"
+    monitored_by: "{{ (zabbix_api_proxy | length > 0) | ternary('proxy', 'zabbix_server') }}"
     interfaces: "{{ zabbix_agent_interfaces }}"
     visible_name: "{{ zabbix_visible_hostname | default(zabbix_agent_hostname) }}"
     tls_psk: "{{ zabbix_agent_tlspsk_secret | default(omit) }}"
@@ -109,22 +114,3 @@
   become: false
   changed_when: false
   tags: [api]
-
-- name: API | Update host TLS settings
-  community.zabbix.zabbix_host:
-    host_name: "{{ zabbix_agent_hostname }}"
-    visible_name: "{{ zabbix_visible_hostname | default(zabbix_agent_hostname) }}"
-    host_groups: "{{ zabbix_host_groups }}"
-    tls_psk: "{{ zabbix_agent_tlspsk_secret | default(omit) }}"
-    tls_psk_identity: "{{ zabbix_agent_tlspskidentity | default(omit) }}"
-    tls_accept: "{{ (zabbix_agent_tls_config[zabbix_agent_tlsaccept if zabbix_agent_tlsaccept else 'unencrypted']) | int }}"
-    tls_connect: "{{ (zabbix_agent_tls_config[zabbix_agent_tlsconnect if zabbix_agent_tlsconnect else 'unencrypted']) | int }}"
-  notify: restart docker zabbix agent
-  register: zabbix_api_host_update
-  until: zabbix_api_host_update is succeeded
-  delegate_to: localhost
-  become: false
-  when:
-    - zabbix_api_update_psk | bool
-  tags: [api]
-
