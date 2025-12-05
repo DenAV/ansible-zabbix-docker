@@ -22,8 +22,7 @@
   template:
     src: "env_vars/{{ item.src }}"
     dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
-  loop: "{{
-    (
+  loop: "{{ (
       [ {'src': '.env_srv.yml.j2', 'dest': '.env_srv'},
         {'src': '.env_db_mysql.yml.j2', 'dest': '.env_db_mysql'},
         {'src': '.env_web.yml.j2', 'dest': '.env_web'},
@@ -40,8 +39,7 @@
       [ {'src': '.env_prx.yml.j2', 'dest': '.env_prx'}
       ] if zabbix_deployment_mode == 'proxy' else
       [ {'src': '.env_agent.yml.j2', 'dest': '.env_agent'} ]
-    )
-  }}"
+    ) }}"
 
 # Docker-compose.yml
 - name: Create docker-compose file
