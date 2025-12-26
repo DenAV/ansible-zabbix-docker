@@ -121,7 +121,7 @@ ansible-playbook playbooks/pl_zbx_docker_setup_server_agent_local.yml -bK --vaul
 
 ## License
 
-BSD
+BSD 3-Clause (see [LICENSE](./LICENSE))
 
 ## Maintainers
 
