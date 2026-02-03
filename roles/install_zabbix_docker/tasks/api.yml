@@ -46,15 +46,15 @@
   run_once: true
   tags: [api]
 
-- name: API | Create or update a proxy with proxy type active
+- name: API | Create or update a proxy with proxy type active or passive
   community.zabbix.zabbix_proxy:
     proxy_name: "{{ zbx_proxy_hostname }}"
     description: "Zabbix Proxy Docker deployed"
-    operating_mode: active
+    operating_mode: "{{ zabbix_api_proxy_mode }}"
     state: present
     allowed_addresses: "{{ zbx_proxy_source_ip if zbx_proxy_source_ip != '' else omit }}"
     tls_accept: "PSK"
-    tls_connect: "PSK"
+    tls_connect: "{{ 'PSK' if zabbix_api_proxy_mode == 'passive' else 'no_encryption' }}"
     tls_psk_identity: "{{ zbx_proxy_psk_identity | default(omit) }}"
     tls_psk: "{{ zbx_pskfile_secret | default(omit) }}"
   when:
@@ -88,7 +88,7 @@
     - zabbix_deployment_mode in ['proxy_agent','proxy']
   run_once: true
 
-- name: API | Create or update host
+- name: API | Create or update host on Zabbix server
   community.zabbix.zabbix_host:
     host_name: "{{ zabbix_agent_hostname }}"
     host_groups: "{{ zabbix_host_groups }}"
@@ -96,8 +96,8 @@
     status: "{{ zabbix_host_status }}"
     state: "{{ zabbix_create_host }}"
     force: "{{ zabbix_update_host }}"
-    proxy: "{{ zabbix_api_proxy }}"
-    monitored_by: "{{ (zabbix_api_proxy | length > 0) | ternary('proxy', 'zabbix_server') }}"
+    proxy: "{{ zabbix_api_proxy if zabbix_api_monitored_by == 'proxy' else omit }}"
+    monitored_by: "{{ zabbix_api_monitored_by }}"
     interfaces: "{{ zabbix_agent_interfaces }}"
     visible_name: "{{ zabbix_visible_hostname | default(zabbix_agent_hostname) }}"
     tls_psk: "{{ zabbix_agent_tlspsk_secret | default(omit) }}"

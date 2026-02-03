@@ -65,12 +65,15 @@ zabbix_api_http_password: ""
 zabbix_api_http_user: ""
 zabbix_api_user: ""
 zabbix_api_pass: ""
-zabbix_api_proxy: "{{ zbx_proxy_hostname }}"
+zabbix_api_proxy: "" # or "{{ zbx_proxy_hostname }}"
 zabbix_api_token: ""  # Prefer token; falls back to user/pass if empty
 zabbix_validate_certs: false
 zabbix_api_create_hostgroup: true
 zabbix_api_create_hosts: false
 zabbix_api_create_proxy: false
+
+zabbix_api_monitored_by: "{{ 'zabbix_server' if (zabbix_deployment_mode in ['proxy_agent','proxy']) else 'proxy' }}"
+zabbix_api_proxy_mode: 'active'  # 'active' or 'passive'
 
 zabbix_create_host: present       # or absent
 zabbix_create_hostgroup: present  # or absent
