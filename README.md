@@ -14,14 +14,14 @@ This project installs Zabbix locally using Docker containers via Ansible. It sup
 
 Install Ansible (example for Debian/Ubuntu):
 
-```powershell
+```bash
 sudo apt update
 sudo apt install ansible -y
 ```
 
 ## Quick Start (Local Deploy)
 
-```powershell
+```bash
 # Clone the repository
 git clone https://github.com/DenAV/ansible-zabbix-docker.git
 cd ansible-zabbix-docker
@@ -47,19 +47,19 @@ Tip: Use `sudo ansible-playbook ...` if you prefer not to provide `-K`.
 ## Configuration Overview
 
 - Docker role vars (see `roles/install_docker/README.md`):
-	- `docker_package_state`, `docker_compose_plugin_install`, `docker_users`, `docker_daemon_options`, etc.
+    - `docker_package_state`, `docker_compose_plugin_install`, `docker_users`, `docker_daemon_options`, etc.
 
 - Zabbix role vars (see `roles/install_zabbix_docker/README.md`):
-	- `zabbix_version` (default `7.4.5`), `zabbix_image_flavor` (`alpine`|`ubuntu`), `zabbix_deployment_mode` (`server_agent`|`proxy_agent`|`proxy`|`agent`)
-	- Security: `zabbix_agent_privileged` (default false), `zabbix_agent_cap_add`, `zabbix_agent_network_mode_host`
-	- Networks: `zbx_net_frontend_subnet`, `zbx_net_backend_subnet`
-	- API & PSK: `zabbix_api_create_hosts` PSK auto-generation
+    - `zabbix_version` (default `7.4.5`), `zabbix_image_flavor` (`alpine`|`ubuntu`), `zabbix_deployment_mode` (`server_agent`|`proxy_agent`|`proxy`|`agent`)
+    - Security: `zabbix_agent_privileged` (default false), `zabbix_agent_cap_add`, `zabbix_agent_network_mode_host`
+    - Networks: `zbx_net_frontend_subnet`, `zbx_net_backend_subnet`
+    - API & PSK: `zabbix_api_create_hosts` PSK auto-generation
 
 To override variables, pass `-e` or create inventory/group_vars. Example:
 
-```powershell
+```bash
 ansible-playbook playbooks/pl_zbx_docker_setup_server_agent_local.yml -bK \
-	-e "zabbix_version=7.4.5 zabbix_image_flavor=alpine zabbix_deployment_mode=server_agent"
+    -e "zabbix_version=7.4.5 zabbix_image_flavor=alpine zabbix_deployment_mode=server_agent"
 ```
 
 ## What Gets Installed
@@ -90,15 +90,15 @@ The role renders `.env_*` files and a `docker-compose.yml` in a local project pa
 ## Next Steps
 
 - See role docs:
-	- `roles/install_docker/README.md`
-	- `roles/install_zabbix_docker/README.md`
+    - `roles/install_docker/README.md`
+    - `roles/install_zabbix_docker/README.md`
 - Customize env templates under `roles/install_zabbix_docker/templates/env_vars/`.
 
 ### Using Ansible Vault for credentials
 
 Store sensitive values (Zabbix API user/password, PSK) with Vault:
 
-```powershell
+```bash
 # Create a vault-protected vars file
 ansible-vault create group_vars/all/vault.yml
 ```
@@ -113,7 +113,7 @@ zbx_pskfile_secret: "<64-hex-characters>"
 
 Run playbooks with Vault password prompt or file:
 
-```powershell
+```bash
 ansible-playbook playbooks/pl_zbx_docker_setup_server_agent_local.yml -bK --ask-vault-pass
 # or
 ansible-playbook playbooks/pl_zbx_docker_setup_server_agent_local.yml -bK --vault-password-file .vault_pass

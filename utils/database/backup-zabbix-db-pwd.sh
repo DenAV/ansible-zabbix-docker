@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Configuration
 BACKUP_DIR="./zbx_env/backups"

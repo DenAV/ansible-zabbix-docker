@@ -1,4 +1,4 @@
-# Vars für zabbix_agent.conf auf Windows OS
+# Variables for zabbix_agent.conf on Windows OS
 #
 # Option: logfile
 zabbix_agent_logfilesize: 1

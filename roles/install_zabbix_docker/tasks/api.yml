@@ -11,7 +11,7 @@
   tags: [api]
 
 - name: Load platform-specific variables
-  include_vars:
+  ansible.builtin.include_vars:
     dir: vars
   no_log: true
 
@@ -69,7 +69,7 @@
   tags: [api]
 
 - name: Wait for Zabbix server port (10051) on localhost
-  wait_for:
+  ansible.builtin.wait_for:
     host: "{{ zbx_server_source_ip | default('127.0.0.1') }}"
     port: 10051
     delay: 2
@@ -79,7 +79,7 @@
   run_once: true
 
 - name: Wait for Zabbix proxy port (10051) on localhost
-  wait_for:
+  ansible.builtin.wait_for:
     host: "{{ zbx_proxy_source_ip | default('127.0.0.1') }}"
     port: 10051
     delay: 2

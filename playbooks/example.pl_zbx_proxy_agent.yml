@@ -52,7 +52,7 @@
 
   tasks:
     - name: Install Docker prerequisites
-      include_role:
+      ansible.builtin.include_role:
         name: install_docker
       # Note: These roles target Linux hosts. The Windows guard prevents
       # accidental execution on a Windows control machine. Run this playbook
@@ -60,7 +60,7 @@
       when: ansible_os_family != 'Windows'
 
     - name: Deploy Zabbix stack (proxy + agent)
-      include_role:
+      ansible.builtin.include_role:
         name: install_zabbix_docker
       vars:
         zbx_container_state: present

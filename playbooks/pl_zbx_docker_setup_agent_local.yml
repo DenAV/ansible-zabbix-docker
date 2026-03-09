@@ -1,40 +1,30 @@
-## Ansible infrastructure
-# ansible-playbook playbooks/pl_zbx_docker_setup_local.yml -bK
 ---
-- name: Playbook initial_setting
+# ansible-playbook playbooks/pl_zbx_docker_setup_agent_local.yml -bK
+
+- name: Zabbix Agent (local)
   hosts: localhost
   connection: local
   become: true
   gather_facts: true
 
   vars:
-    # what should be installed
-    # Images
-    zabbix_releases_image: 'alpine-6.0-latest'
-    
-    # Zabbix server + agent
-    must_zbx_server_agent_installed: false
-    # Zabbix proxy + agent
-    must_zbx_proxy_agent_installed: false
-    # Zabbix proxy
-    must_zbx_proxy_installed: false
-    # Zabbix agent
-    must_zbx_agent_installed: true
+    zabbix_version: '7.4.5'
+    zabbix_image_flavor: 'alpine'
+    zabbix_deployment_mode: 'agent'
 
-    # for .env_agent
+    # Agent connects to a reachable Server or Proxy address (IP/FQDN)
     zbx_agent_server_host: 'zabbix-server'
     zbx_agent_hostname: 'agent-hostname'
 
-    # for API
-    zabbix_proxy: "z-proxy-Test"
+    # API (optional)
     zabbix_host_groups:
-      - "Test-Cloud"
+      - "Linux servers"
     zabbix_link_templates:
       - "Linux by Zabbix agent"
 
   tasks:
-    - name: Role install docker
-      include_role:
+    - name: Install Docker prerequisites
+      ansible.builtin.include_role:
         name: install_docker
       vars:
         docker_users:
@@ -42,9 +32,9 @@
           - zabbix
       when: ansible_os_family != 'Windows'
 
-    - name: Role install_zabbix_docker
-      include_role:
+    - name: Deploy Zabbix stack (agent only)
+      ansible.builtin.include_role:
         name: install_zabbix_docker
       vars:
-        zbx_container_state: 'present' # 'absent'
+        zbx_container_state: 'present'
       when: ansible_os_family != 'Windows'

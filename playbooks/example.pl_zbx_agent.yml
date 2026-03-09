@@ -20,12 +20,12 @@
 
   tasks:
     - name: Install Docker prerequisites
-      include_role:
+      ansible.builtin.include_role:
         name: install_docker
       when: ansible_os_family != 'Windows'
 
     - name: Deploy Zabbix stack (agent only)
-      include_role:
+      ansible.builtin.include_role:
         name: install_zabbix_docker
       vars:
         zbx_container_state: present

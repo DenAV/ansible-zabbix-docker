@@ -1,7 +1,8 @@
 #!/bin/bash
+set -euo pipefail
 
 # === Configuration ===
-BACKUP_FILE="$1"
+BACKUP_FILE="${1:-}"
 
 # === Functions ===
 
