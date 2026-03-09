@@ -34,7 +34,7 @@
 
 - name: Create Zabbix host via API
   ansible.builtin.include_tasks: api.yml
-  when: 
+  when:
     - check_container is defined
     - (check_container.failed | default(false)) == false
     - (zabbix_api_create_hosts | bool) or (zabbix_api_create_proxy | bool) or (zabbix_api_create_hostgroup | bool)
