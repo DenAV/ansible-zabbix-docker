@@ -20,7 +20,7 @@ zabbix_agent_timeout: 20
 # Userparams
 zabbix_agent_userparams: False
 ####### user-defined monitored parameters #######
-#zabbix_agent_unsafeuserparameters: 1
+# zabbix_agent_unsafeuserparameters: 1
 
 ####### TLS-RELATED PARAMETERS #######
 # Option: TLSConnect
