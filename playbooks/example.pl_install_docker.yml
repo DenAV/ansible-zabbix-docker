@@ -29,10 +29,7 @@
         max-size: "100m"
         max-file: "3"
 
-    # Optional: pin to nightly channel (advanced)
-    # docker_apt_release_channel: nightly
-
   tasks:
     - name: Include install_docker role
-      include_role:
+      ansible.builtin.include_role:
         name: install_docker

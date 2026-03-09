@@ -1,12 +1,12 @@
 ---
 - name: Load platform-specific variables
-  include_vars:
+  ansible.builtin.include_vars:
     dir: vars
-  no_log: True
-  
+  no_log: true
+
 # Select deployment mode and render variables
 - name: Select docker-compose template based on deployment mode
-  set_fact:
+  ansible.builtin.set_fact:
     zbx_docker_compose_tmp: >-
       {{ 'docker-compose_server_agent.yml.j2' if zabbix_deployment_mode == 'server_agent' else
          'docker-compose_proxy_agent.yml.j2' if zabbix_deployment_mode == 'proxy_agent' else
@@ -14,14 +14,16 @@
          'docker-compose_agent.yml.j2' if zabbix_deployment_mode == 'agent' else '' }}
 
 - name: Fail if deployment mode is invalid
-  fail:
+  ansible.builtin.fail:
     msg: "Invalid zabbix_deployment_mode '{{ zabbix_deployment_mode }}'"
   when: zbx_docker_compose_tmp | length == 0
 
 - name: Render variables files for selected deployment
-  template:
+  ansible.builtin.template:
     src: "env_vars/{{ item.src }}"
     dest: "{{ zbx_variables_local_path }}/{{ item.dest }}"
+    mode: '0640'
+  no_log: true
   loop: "{{ (
       [ {'src': '.env_srv.yml.j2', 'dest': '.env_srv'},
         {'src': '.env_db_mysql.yml.j2', 'dest': '.env_db_mysql'},
@@ -43,7 +45,7 @@
 
 # Docker-compose.yml
 - name: Create docker-compose file
-  template:
+  ansible.builtin.template:
     src: "{{ zbx_docker_compose_tmp }}"
     dest: "{{ zbx_project_path }}/{{ zbx_docker_compose_file }}"
     force: true
@@ -53,6 +55,6 @@
     - zbx_docker_compose_tmp|length > 0
 
 - name: Check path for docker-compose file
-  stat:
+  ansible.builtin.stat:
     path: "{{ zbx_project_path }}/{{ zbx_docker_compose_file }}"
   register: check_path_docker_compose_file

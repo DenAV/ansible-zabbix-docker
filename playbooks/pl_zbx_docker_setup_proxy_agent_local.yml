@@ -13,24 +13,24 @@
     zabbix_version: '7.4.5'
     zabbix_image_flavor: "alpine"
 
-    #! Zabbix deployment mode: 
+    # Zabbix deployment mode:
     zabbix_deployment_mode: 'proxy_agent'
 
-    #! for .env_agent
+    # for .env_agent
     # Agent connects to the Proxy service
-    zbx_agent_server_host: 'zabbix-proxy' 
+    zbx_agent_server_host: 'zabbix-proxy'
 
     # Agent hostname as shown in Zabbix
-    zbx_agent_hostname: 'agent-hostname' #! change to your agent hostname
+    zbx_agent_hostname: 'agent-hostname'  # change to your agent hostname
 
-    #! for API
+    # for API
     zabbix_api_proxy: "z-proxy-Test" # Name of proxy in Zabbix server
     zabbix_host_groups:
       - "Zabbix-Proxy"
     zabbix_link_templates:
       - "Linux by Zabbix agent"
 
-    #! for .env_prx
+    # for .env_prx
     # Proxy sends data to the server; use compose service or external IP/FQDN
     zbx_proxy_server_host: 'zabbix-server'
 
@@ -38,9 +38,9 @@
     zbx_proxy_hostname: 'zbx-proxy-hostname'
 
   tasks:
-      # Install Docker on non-Windows control machines only
+    # Install Docker on non-Windows control machines only
     - name: Role install docker
-      include_role:
+      ansible.builtin.include_role:
         name: install_docker
       vars:
         docker_users:
@@ -54,7 +54,7 @@
       when: ansible_os_family != 'Windows'
       # Install Zabbix Docker stack
     - name: Role install_zabbix_docker
-      include_role:
+      ansible.builtin.include_role:
         name: install_zabbix_docker
       vars:
         zbx_container_state: 'present' # 'absent'

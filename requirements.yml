@@ -2,3 +2,5 @@
 collections:
   - name: community.zabbix
     version: ">=4.1.1"
+  - name: community.docker
+    version: ">=3.4.0"

@@ -3,7 +3,7 @@
 # chown -R 1997:1995 /var/lib/zabbix/
 
 - name: Create subfolder for container
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     recurse: true
     state: directory
@@ -13,16 +13,16 @@
   register: result_create_path
 
 - name: Check path for TLSPSK
-  stat:
+  ansible.builtin.stat:
     path: "{{ zbx_volumes_local_path }}/var/enc"
   register: check_path_tlspsk
 
 - name: Generate or check TLSPSK
-  include_tasks: autopsk_setup.yml
+  ansible.builtin.include_tasks: autopsk_setup.yml
   when: check_path_tlspsk.stat.exists
 
-- name: preparation docker-compose file
-  include_tasks: docker_prepare.yml
+- name: Preparation docker-compose file
+  ansible.builtin.include_tasks: docker_prepare.yml
   when: check_path_tlspsk.stat.exists
 
 - name: Container Zabbix deploy
@@ -33,8 +33,8 @@
   when: check_path_docker_compose_file.stat.exists
 
 - name: Create Zabbix host via API
-  include_tasks: api.yml
-  when: 
+  ansible.builtin.include_tasks: api.yml
+  when:
     - check_container is defined
     - (check_container.failed | default(false)) == false
     - (zabbix_api_create_hosts | bool) or (zabbix_api_create_proxy | bool) or (zabbix_api_create_hostgroup | bool)

@@ -1,10 +1,8 @@
-Install Docker Role
-===================
+# Install Docker Role
 
 This role installs and configures Docker Engine on Debian/Ubuntu hosts, sets up the official Docker APT repository, installs Docker packages, and optionally configures daemon options and adds users to the `docker` group. It also ensures the Docker service is enabled and running.
 
-Requirements
-------------
+## Requirements
 
 - Ansible >= 2.10
 - Target OS: Debian 11/12 or Ubuntu 20.04/22.04 (systemd-based)
@@ -12,8 +10,7 @@ Requirements
 - Become (sudo) privileges for package installation and service management
 - Internet access to reach Docker APT repositories
 
-Role Variables
---------------
+## Role Variables
 
 Defined in `defaults/main.yml`:
 
@@ -33,8 +30,7 @@ Defined in `defaults/main.yml`:
 - `docker_compose_plugin_install` (bool, default: `true`): Whether to install the Compose v2 plugin.
 - `zabbix_gid` (int, default: `1995`), `zabbix_uid` (int, default: `1997`): IDs used for the `zabbix` group/user.
 
-Behavior Overview
------------------
+## Behavior Overview
 
 - Removes any legacy Docker packages (`docker`, `docker-engine`, `docker.io`, `containerd`, `runc`).
 - Installs apt prerequisites (`apt-transport-https`, `ca-certificates`, `lsb-release`, `curl`, `gnupg`).
@@ -47,18 +43,15 @@ Behavior Overview
 - Creates a `zabbix` group (gid 1995) and user (uid 1997, shell `/sbin/nologin`) used by the broader project.
   - These IDs are configurable via `zabbix_gid` and `zabbix_uid`.
 
-Handlers
---------
+## Handlers
 
 - `restart docker`: Restarts the Docker service using `docker_restart_handler_state` when configuration or package changes occur.
 
-Dependencies
-------------
+## Dependencies
 
 None.
 
-Example Playbooks
------------------
+## Example Playbooks
 
 Install Docker with default settings and add an extra user to the `docker` group:
 
@@ -100,8 +93,7 @@ Pin to the nightly APT channel (advanced):
         docker_apt_release_channel: nightly
 ```
 
-Notes
------
+## Notes
 
 - This role currently targets Debian-family distributions; the `install_docker.yml` tasks run only when `ansible_os_family == 'Debian'`.
 - Compose v2 is provided by `docker-compose-plugin`; use `docker compose ...` instead of `docker-compose`.
@@ -113,12 +105,10 @@ Notes
 
 Tip: Ansible tasks using this role typically run with `become: true`, so Docker operations succeed even before your interactive shell has refreshed group membership.
 
-License
--------
+## License
 
 BSD
 
-Author Information
-------------------
+## Author Information
 
 Maintained by the `ansible-zabbix-docker` project. For issues and contributions, please use the repository's issue tracker.
