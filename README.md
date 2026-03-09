@@ -2,7 +2,7 @@
 
 This project installs Zabbix locally using Docker containers via Ansible. It supports multiple deployment variants (server+agent, proxy+agent, proxy-only, agent-only) and targets Zabbix 7.4.5 on Ubuntu 24.04 LTS (and Debian 11/12).
 
-**Components**
+## Components
 
 - Role `install_docker`: Installs Docker Engine and Compose v2 with best-practice apt keyring.
 - Role `install_zabbix_docker`: Generates env files, renders Compose, deploys Zabbix stack, manages TLS PSK, and optionally registers hosts via API.
@@ -48,13 +48,13 @@ Tip: Use `sudo ansible-playbook ...` if you prefer not to provide `-K`.
 ## Configuration Overview
 
 - Docker role vars (see `roles/install_docker/README.md`):
-    - `docker_package_state`, `docker_compose_plugin_install`, `docker_users`, `docker_daemon_options`, etc.
+  - `docker_package_state`, `docker_compose_plugin_install`, `docker_users`, `docker_daemon_options`, etc.
 
 - Zabbix role vars (see `roles/install_zabbix_docker/README.md`):
-    - `zabbix_version` (default `7.4.5`), `zabbix_image_flavor` (`alpine`|`ubuntu`), `zabbix_deployment_mode` (`server_agent`|`proxy_agent`|`proxy`|`agent`)
-    - Security: `zabbix_agent_privileged` (default false), `zabbix_agent_cap_add`, `zabbix_agent_network_mode_host`
-    - Networks: `zbx_net_frontend_subnet`, `zbx_net_backend_subnet`
-    - API & PSK: `zabbix_api_create_hosts` PSK auto-generation
+  - `zabbix_version` (default `7.4.5`), `zabbix_image_flavor` (`alpine`|`ubuntu`), `zabbix_deployment_mode` (`server_agent`|`proxy_agent`|`proxy`|`agent`)
+  - Security: `zabbix_agent_privileged` (default false), `zabbix_agent_cap_add`, `zabbix_agent_network_mode_host`
+  - Networks: `zbx_net_frontend_subnet`, `zbx_net_backend_subnet`
+  - API & PSK: `zabbix_api_create_hosts` PSK auto-generation
 
 To override variables, pass `-e` or create inventory/group_vars. Example:
 
@@ -91,8 +91,8 @@ The role renders `.env_*` files and a `docker-compose.yml` in a local project pa
 ## Next Steps
 
 - See role docs:
-    - `roles/install_docker/README.md`
-    - `roles/install_zabbix_docker/README.md`
+  - `roles/install_docker/README.md`
+  - `roles/install_zabbix_docker/README.md`
 - Customize env templates under `roles/install_zabbix_docker/templates/env_vars/`.
 
 ### Using Ansible Vault for credentials

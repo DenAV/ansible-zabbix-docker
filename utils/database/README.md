@@ -7,14 +7,14 @@ This directory contains utility scripts for backing up and validating Zabbix dat
 ```bash
 chmod +x backup-zabbix-db-pwd.sh
 ./backup-zabbix-db-pwd.sh
-``` 
+```
 
 ## How to use backup with the .my.cnf credentials file
 
 ```bash
 chmod +x backup-zabbix-db-cfn.sh
 ./backup-zabbix-db-cfn.sh
-``` 
+```
 
 ## How to validate Zabbix database backup
 
