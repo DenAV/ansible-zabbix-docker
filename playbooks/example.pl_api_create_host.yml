@@ -7,7 +7,7 @@
   vars:
     zabbix_api_url: "https://zabbix.example.com"
     zabbix_api_user: "Admin"
-    zabbix_api_pass: "zabbix"
+    zabbix_api_pass: "{{ vault_zabbix_api_pass }}"  # store in ansible-vault
     zabbix_host_groups:
       - "Linux servers"
     zabbix_create_host: present
@@ -18,6 +18,6 @@
 
   tasks:
     - name: Include Zabbix API tasks
-      include_role:
+      ansible.builtin.include_role:
         name: install_zabbix_docker
         tasks_from: api.yml

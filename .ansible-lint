@@ -1,0 +1,13 @@
+---
+profile: production
+
+exclude_paths:
+  - .github/
+  - docs/
+  - examples/
+
+skip_list:
+  - yaml[truthy]
+
+warn_list:
+  - role-name[path]
