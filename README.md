@@ -3,6 +3,7 @@
 This project installs Zabbix locally using Docker containers via Ansible. It supports multiple deployment variants (server+agent, proxy+agent, proxy-only, agent-only) and targets Zabbix 7.4.5 on Ubuntu 24.04 LTS (and Debian 11/12).
 
 **Components**
+
 - Role `install_docker`: Installs Docker Engine and Compose v2 with best-practice apt keyring.
 - Role `install_zabbix_docker`: Generates env files, renders Compose, deploys Zabbix stack, manages TLS PSK, and optionally registers hosts via API.
 

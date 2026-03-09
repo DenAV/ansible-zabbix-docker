@@ -3,6 +3,7 @@
 Use this checklist to validate Docker/Compose setup, containers, networking, and Zabbix agent/proxy configuration.
 
 ## Quick Status
+
 - Compose config: `cd /zabbix && sudo docker compose config`
 - Services list: `sudo docker compose ps`
 - Logs (last 200):
@@ -11,16 +12,19 @@ Use this checklist to validate Docker/Compose setup, containers, networking, and
   - Server: `sudo docker logs zabbix-server --tail=200`
 
 ## Images & Recreate
+
 - Pull images: `sudo docker compose pull`
 - Up/refresh: `sudo docker compose up -d --pull=always`
 - Stop/remove: `sudo docker compose down`
 
 ## Health & Ports
+
 - Agent port: `timeout 1 bash -c '</dev/tcp/127.0.0.1/10050' && echo OK || echo FAIL`
 - Proxy port: `timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' && echo OK || echo FAIL`
 - Server port: `timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' && echo OK || echo WAIT`
 
 ## Networks
+
 - List networks: `sudo docker network ls`
 - Inspect frontend: `sudo docker network inspect zbx_net_frontend | jq '.[0].IPAM.Config'`
 - Container DNS reachability:
@@ -28,6 +32,7 @@ Use this checklist to validate Docker/Compose setup, containers, networking, and
   - `sudo docker exec zabbix-proxy getent hosts zabbix-server`
 
 ## Agent Configuration
+
 - Environment applied: `sudo docker exec zabbix-agent env | grep ZBX_`
 - PSK secret file: `sudo docker exec zabbix-agent cat /var/lib/zabbix/enc/secret.psk`
 - Identity (from env): check `cat /zabbix/env_vars/.env_agent` for `ZBX_TLSPSKIDENTITY`
@@ -36,6 +41,7 @@ Use this checklist to validate Docker/Compose setup, containers, networking, and
 - Print built-in items: `sudo docker exec zabbix-agent zabbix_agentd -p | head`
 
 ## Proxy Configuration
+
 - Environment applied: `sudo docker exec zabbix-proxy env | grep ZBX_`
 - PSK secret file: `sudo docker exec zabbix-proxy cat /var/lib/zabbix/enc/secret.psk`
 - Server target:
@@ -44,6 +50,7 @@ Use this checklist to validate Docker/Compose setup, containers, networking, and
   - Note: the image reads `ZBX_*` environment variables; the base `zabbix_proxy.conf` includes modular files and may not contain the server host directly.
 
 ## Common Errors & Fixes
+
 - YAML error ("mapping values are not allowed"):
   - Inspect `/zabbix/docker-compose.yml` and fix indentation/empty keys.
   - Validate: `sudo docker compose config`.
@@ -57,22 +64,26 @@ Use this checklist to validate Docker/Compose setup, containers, networking, and
   - Verify: `docker compose version`
 
 ## Zabbix API Readiness
+
 - Wait for server/proxy ports before API calls:
   - Server: `timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' && echo Server OK || echo WAIT'`
   - Proxy: `timeout 1 bash -c '</dev/tcp/127.0.0.1/10051' && echo Proxy OK || echo WAIT'`
 - Check credentials/vault values (`zabbix_api_url`, `zabbix_api_user`, `zabbix_api_pass`).
 
 ## Regenerate PSK
+
 - Path on host: `/zabbix/zbx_env/var/enc/secret.psk`
 - Permissions: `sudo chmod 0640 /zabbix/zbx_env/var/enc/secret.psk`
 - Re-run playbook to auto-generate if missing.
 
 ## Compose File Locations
+
 - Compose project directory: `/zabbix`
 - Env files rendered: `/zabbix/env_vars/.env_*`
 - Local volumes base: `/zabbix/zbx_env/...`
 
 ## Collect Diagnostics
+
 - Compose details: `sudo docker compose config > /tmp/compose.out`
 - Container inspect:
   - `sudo docker inspect zabbix-agent > /tmp/agent.inspect.json`
