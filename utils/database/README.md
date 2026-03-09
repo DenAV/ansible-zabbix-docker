@@ -3,6 +3,7 @@
 This directory contains utility scripts for backing up and validating Zabbix database backups.
 
 ## How to use backup with password file
+
 ```bash
 chmod +x backup-zabbix-db-pwd.sh
 ./backup-zabbix-db-pwd.sh
