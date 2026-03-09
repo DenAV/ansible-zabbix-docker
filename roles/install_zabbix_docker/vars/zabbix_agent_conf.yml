@@ -1,3 +1,4 @@
+---
 # Variables for zabbix_agent.conf on Windows OS
 #
 # Option: logfile
@@ -18,7 +19,7 @@ zabbix_agent_maxlinespersecond: 20
 # Option: Timeout
 zabbix_agent_timeout: 20
 # Userparams
-zabbix_agent_userparams: False
+zabbix_agent_userparams: false
 ####### user-defined monitored parameters #######
 #zabbix_agent_unsafeuserparameters: 1
 
