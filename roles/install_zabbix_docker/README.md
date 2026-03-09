@@ -24,6 +24,7 @@ Key variables (see `defaults/main.yml` for full list):
 - `zbx_container_state`: desired compose state (`present` or `absent`).
 
 Security & networking:
+
 - `zabbix_agent_privileged`: default `false`; avoid privileged unless required.
 - `zabbix_agent_pid_host`: default `false`; disable host PID namespace by default.
 - `zabbix_agent_network_mode_host`: default `false`; avoid host networking by default.
@@ -36,6 +37,7 @@ Security & networking:
 - `zabbix_enable_healthchecks`: default `true`; adds simple healthchecks to agent and can be extended to other services.
 
 API & PSK:
+
 - `zabbix_install_pip_packages`: default `true` (installs `zabbix-api` on localhost).
 - `zbx_pskfile_secret`: generated automatically if missing; stored at `{{ zbx_volumes_local_path }}/var/enc/secret.psk`.
 - `zabbix_api_create_hostgroup`, `zabbix_api_create_hosts`: booleans controlling API automation.
