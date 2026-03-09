@@ -1,10 +1,8 @@
-Install Zabbix (Docker) Role
-============================
+# Install Zabbix (Docker) Role
 
 This role deploys Zabbix components (server, proxy, web, web-service, agent) using Docker Compose on Debian/Ubuntu hosts. It supports Zabbix 7.4.5, generates TLS PSK secrets, and can register/update hosts via the Zabbix API.
 
-Requirements
-------------
+## Requirements
 
 - Ansible >= 2.10
 - Docker Engine + Compose v2 (via `docker compose`)
@@ -12,8 +10,7 @@ Requirements
 - Become (sudo) privileges on the target machine
 - Internet access to pull Zabbix and DB images
 
-Role Variables
---------------
+## Role Variables
 
 Key variables (see `defaults/main.yml` for full list):
 
@@ -45,8 +42,7 @@ API & PSK:
 - `zabbix_agent_tlspsk_secret`, `zabbix_agent_tlspskidentity`: PSK secret and identity used by agent and API updates. By default `zabbix_agent_tlspskidentity` maps to `zbx_agent_psk_identity`.
 - `zabbix_api_proxy`: proxy name as it exists in the Zabbix server, used when registering hosts via API (defaults to `zbx_proxy_hostname`).
 
-Behavior Overview
------------------
+## Behavior Overview
 
 - Renders environment files for selected deployment mode and builds a Docker Compose file from templates.
 - Uses dynamic image tags like `zabbix/zabbix-server-mysql:{{ zabbix_image_tag }}`.
@@ -54,8 +50,7 @@ Behavior Overview
 - Starts services with `docker compose` via the Ansible Docker collection.
 - Optionally registers/updates hosts in Zabbix using API calls once services are up.
 
-Security Hardening
-------------------
+## Security Hardening
 
 - Agent container runs without `privileged`, `pid: host`, or `network_mode: host` by default; enable only when necessary.
 - Configure capabilities via `zabbix_agent_cap_add` (e.g., `SYS_PTRACE`, `NET_RAW`) rather than full privilege.
@@ -63,8 +58,7 @@ Security Hardening
 - Consider moving Zabbix API credentials and PSK secrets to Ansible Vault.
 - Add resource limits and healthchecks for server/proxy if desired.
 
-Example Playbooks
------------------
+## Example Playbooks
 
 Server + Agent on Ubuntu 24.04 with Zabbix 7.4.5 (alpine):
 
@@ -95,25 +89,21 @@ Proxy + Agent with custom subnets:
         zbx_net_frontend_subnet: "10.20.38.0/24"
 ```
 
-Dependencies
-------------
+## Dependencies
 
 - `community.docker` Ansible collection for Compose tasks.
 - Docker Engine with Compose v2 on target host.
 
-Notes
------
+## Notes
 
 - Templates previously defaulted to 6.x images; now use `zabbix_version` and `zabbix_image_tag`. Ensure the tag exists in Docker Hub.
 - If using host networking for agent, review security implications carefully.
 - For MySQL tuning/SSL, enable related `ZBX_DBTLS*` variables in `.env_srv` and secrets.
 
-License
--------
+## License
 
 BSD
 
-Author Information
-------------------
+## Author Information
 
 Maintained by the `ansible-zabbix-docker` project. Contributions and issues via repository tracker.
